@@ -1,0 +1,1001 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Python While | Youth Lesson</title>
+  <style>
+    :root {
+      --bg: #090a14;
+      --card: rgba(255, 255, 255, 0.08);
+      --card-strong: rgba(255, 255, 255, 0.14);
+      --text: #f6f7fb;
+      --muted: #b9c0d4;
+      --green: #00ffaa;
+      --pink: #ff3d81;
+      --purple: #8b5cf6;
+      --yellow: #ffe066;
+      --blue: #38bdf8;
+      --danger: #ff5c7a;
+      --shadow: 0 24px 90px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      color: var(--text);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at 10% 15%, rgba(255, 61, 129, 0.35), transparent 30%),
+        radial-gradient(circle at 88% 18%, rgba(56, 189, 248, 0.32), transparent 32%),
+        radial-gradient(circle at 55% 85%, rgba(0, 255, 170, 0.25), transparent 34%),
+        linear-gradient(135deg, #070812 0%, #12142b 50%, #090a14 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent);
+    }
+
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: none;
+      padding: 54px 72px 74px;
+      opacity: 0;
+      transform: translateY(18px) scale(0.985);
+      transition: opacity 240ms ease, transform 240ms ease;
+    }
+
+    .slide.active {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 28px;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .slide::after {
+      content: attr(data-kicker);
+      position: absolute;
+      right: 72px;
+      top: 34px;
+      padding: 8px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      color: var(--green);
+      background: rgba(0, 0, 0, 0.18);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero {
+      align-content: center;
+      justify-items: start;
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+      letter-spacing: -0.055em;
+      line-height: 0.95;
+    }
+
+    h1 {
+      max-width: 1050px;
+      font-size: clamp(68px, 9vw, 126px);
+    }
+
+    h2 {
+      max-width: 1120px;
+      font-size: clamp(46px, 6vw, 82px);
+    }
+
+    .gradient-text {
+      color: transparent;
+      background: linear-gradient(90deg, var(--green), var(--blue), var(--pink), var(--yellow));
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .subtitle {
+      max-width: 850px;
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 28px;
+      line-height: 1.35;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      min-height: 0;
+    }
+
+    .content.single {
+      grid-template-columns: 1fr;
+    }
+
+    .card {
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 32px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .card.hot {
+      border-color: rgba(0, 255, 170, 0.35);
+      background: linear-gradient(135deg, rgba(0, 255, 170, 0.13), rgba(255, 255, 255, 0.07));
+    }
+
+    .card.pink {
+      border-color: rgba(255, 61, 129, 0.35);
+      background: linear-gradient(135deg, rgba(255, 61, 129, 0.15), rgba(255, 255, 255, 0.07));
+    }
+
+    .card.yellow {
+      border-color: rgba(255, 224, 102, 0.35);
+      background: linear-gradient(135deg, rgba(255, 224, 102, 0.13), rgba(255, 255, 255, 0.07));
+    }
+
+    ul,
+    ol {
+      margin: 0;
+      padding-left: 1.1em;
+      font-size: 27px;
+      line-height: 1.42;
+    }
+
+    li + li {
+      margin-top: 14px;
+    }
+
+    .big-list {
+      font-size: 32px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .pill {
+      padding: 12px 16px;
+      border-radius: 999px;
+      color: #071017;
+      background: var(--green);
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .pill:nth-child(2n) {
+      background: var(--pink);
+      color: white;
+    }
+
+    .pill:nth-child(3n) {
+      background: var(--yellow);
+      color: #171000;
+    }
+
+    pre {
+      margin: 0;
+      padding: 24px;
+      overflow: auto;
+      max-height: 520px;
+      border: 1px solid rgba(0, 255, 170, 0.28);
+      border-radius: 28px;
+      background: rgba(3, 7, 18, 0.78);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), var(--shadow);
+      font-size: 23px;
+      line-height: 1.35;
+    }
+
+    code {
+      color: #d6faff;
+      font-family: Consolas, "JetBrains Mono", monospace;
+    }
+
+    .inline-code {
+      padding: 3px 8px;
+      border-radius: 10px;
+      color: var(--green);
+      background: rgba(0, 255, 170, 0.13);
+      font-family: Consolas, monospace;
+    }
+
+    .meme {
+      min-height: 260px;
+      display: grid;
+      place-items: center;
+      padding: 30px;
+      border: 2px dashed rgba(255, 255, 255, 0.22);
+      border-radius: 34px;
+      text-align: center;
+      background:
+        linear-gradient(135deg, rgba(255, 61, 129, 0.23), rgba(139, 92, 246, 0.16)),
+        rgba(255, 255, 255, 0.06);
+      transform: rotate(-1deg);
+    }
+
+    .meme strong {
+      display: block;
+      margin-bottom: 16px;
+      color: var(--yellow);
+      font-size: 30px;
+    }
+
+    .meme span {
+      color: var(--text);
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1.18;
+    }
+
+    .task {
+      display: inline-block;
+      margin-bottom: 18px;
+      color: var(--yellow);
+      font-size: 20px;
+      font-weight: 950;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .quote {
+      margin: 0;
+      color: var(--green);
+      font-size: 42px;
+      font-weight: 950;
+      line-height: 1.16;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 22px;
+      line-height: 1.35;
+    }
+
+    .warning {
+      color: var(--danger);
+      font-weight: 950;
+    }
+
+    .two-by-two {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 22px;
+    }
+
+    .mini-card {
+      min-height: 190px;
+      padding: 24px;
+      border-radius: 28px;
+      background: var(--card-strong);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+    }
+
+    .mini-card h3 {
+      margin: 0 0 14px;
+      color: var(--green);
+      font-size: 28px;
+    }
+
+    .mini-card p {
+      margin: 0;
+      color: var(--text);
+      font-size: 23px;
+      line-height: 1.34;
+    }
+
+    .progress {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      z-index: 10;
+    }
+
+    .progress span {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--blue), var(--pink));
+      transition: width 180ms ease;
+    }
+
+    .nav {
+      position: fixed;
+      left: 72px;
+      right: 72px;
+      bottom: 24px;
+      z-index: 11;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 14px;
+      padding: 10px 14px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    button:hover {
+      background: rgba(0, 255, 170, 0.22);
+    }
+
+    .timer {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--yellow);
+      font-size: 24px;
+      font-weight: 950;
+    }
+
+    .timer::before {
+      content: "⏱";
+    }
+
+    @media (max-width: 900px) {
+      body {
+        overflow: auto;
+      }
+
+      .deck,
+      .slide {
+        min-height: 100vh;
+        height: auto;
+      }
+
+      .slide {
+        padding: 34px 20px 92px;
+      }
+
+      .slide.active {
+        display: block;
+      }
+
+      .slide::after {
+        right: 20px;
+      }
+
+      .content,
+      .content.single,
+      .two-by-two {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 54px;
+      }
+
+      h2 {
+        font-size: 42px;
+      }
+
+      ul,
+      ol,
+      pre {
+        font-size: 20px;
+      }
+
+      .nav {
+        left: 20px;
+        right: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" id="deck">
+    <section class="slide hero active" data-kicker="start">
+      <div>
+        <h1><span class="gradient-text">while</span>: цикл, который не отстанет</h1>
+        <p class="subtitle">Молодежный урок Python с практикой, мини-играми, челленджами и мемным вайбом.</p>
+        <div class="pill-row">
+          <span class="pill">Python</span>
+          <span class="pill">while</span>
+          <span class="pill">practice</span>
+          <span class="pill">мемы</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="warm up">
+      <h2>Сегодня прокачиваем <span class="gradient-text">while</span></h2>
+      <div class="content">
+        <div class="card hot">
+          <ul class="big-list">
+            <li>быстро вспомним базу;</li>
+            <li>разберем вечные циклы без паники;</li>
+            <li>используем <span class="inline-code">break</span>, <span class="inline-code">continue</span>, счетчики и флаги;</li>
+            <li>напишем ботов, меню и мини-игры.</li>
+          </ul>
+        </div>
+        <div class="meme">
+          <div>
+            <strong>MEM SLOT</strong>
+            <span>Когда запустил <code>while True</code>, но забыл <code>break</code></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="repeat">
+      <h2>Быстрый разогрев</h2>
+      <div class="content">
+        <pre><code>x = 1
+
+while x <= 5:
+    print(x)
+    x += 1</code></pre>
+        <div class="card">
+          <span class="task">Практика 2 минуты</span>
+          <p class="quote">Переделай код, чтобы вывести 10, 8, 6, 4, 2.</p>
+          <p class="small">Подсказка: старт, условие и шаг должны работать в одну сторону.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="idea">
+      <h2>Главная идея</h2>
+      <div class="content">
+        <div class="card hot">
+          <p class="quote">Пока условие истинно, повторяй блок кода.</p>
+          <div class="pill-row">
+            <span class="pill">условие</span>
+            <span class="pill">действие</span>
+            <span class="pill">изменение</span>
+          </div>
+        </div>
+        <pre><code>while условие:
+    действие
+    изменение_условия</code></pre>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="bug">
+      <h2>Ловушка вечности</h2>
+      <div class="content">
+        <pre><code>energy = 5
+
+while energy > 0:
+    print("Я еще могу!")</code></pre>
+        <div class="card pink">
+          <p class="quote warning">Что не так?</p>
+          <ul>
+            <li><span class="inline-code">energy</span> не меняется;</li>
+            <li>условие всегда остается <span class="inline-code">True</span>;</li>
+            <li>программа уходит в бесконечный режим.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="fix">
+      <h2>Фиксим бесконечность</h2>
+      <div class="content">
+        <pre><code>energy = 5
+
+while energy > 0:
+    print("Я еще могу!")
+    energy -= 1</code></pre>
+        <div class="meme">
+          <div>
+            <strong>ЖИЗА</strong>
+            <span>Цикл стал нормальным, когда переменная наконец-то начала меняться</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="practice">
+      <h2>Практика: счетчик лайков</h2>
+      <div class="content">
+        <div class="card hot">
+          <span class="task">Задача</span>
+          <ul>
+            <li>пользователь вводит число лайков;</li>
+            <li>программа печатает каждый лайк отдельной строкой;</li>
+            <li>если лайков больше 10, вывести: "Ого, пост залетел!"</li>
+          </ul>
+        </div>
+        <pre><code>likes = int(input("Сколько лайков? "))
+
+i = 1
+while i <= likes:
+    print("Лайк", i)
+    i += 1</code></pre>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="input">
+      <h2><span class="gradient-text">while</span> любит ввод пользователя</h2>
+      <div class="content">
+        <pre><code>password = ""
+
+while password != "python":
+    password = input("Введите пароль: ")
+
+print("Доступ открыт")</code></pre>
+        <div class="card">
+          <ul>
+            <li>мы не знаем, сколько попыток понадобится;</li>
+            <li>цикл работает, пока пароль неверный;</li>
+            <li>как только условие стало ложным, цикл закончился.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="pin">
+      <h2>Практика: вход в аккаунт</h2>
+      <div class="content">
+        <div class="card yellow">
+          <span class="task">Правила</span>
+          <ul>
+            <li>правильный PIN: <span class="inline-code">1234</span>;</li>
+            <li>максимум 3 попытки;</li>
+            <li>если угадал, доступ открыт;</li>
+            <li>если попытки закончились, карта заблокирована.</li>
+          </ul>
+        </div>
+        <pre><code>pin = ""
+attempts = 3
+
+while pin != "1234" and attempts > 0:
+    pin = input("Введите PIN: ")
+    attempts -= 1
+
+if pin == "1234":
+    print("Добро пожаловать")
+else:
+    print("Карта заблокирована")</code></pre>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="break">
+      <h2><span class="inline-code">break</span>: аварийный выход</h2>
+      <div class="content">
+        <pre><code>while True:
+    text = input("Напиши что-нибудь или stop: ")
+
+    if text == "stop":
+        break
+
+    print("Ты написал:", text)</code></pre>
+        <div class="meme">
+          <div>
+            <strong>EXIT MODE</strong>
+            <span><code>break</code>, когда цикл понял, что пора домой</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="bot">
+      <h2>Практика: бот-попугай</h2>
+      <div class="content single">
+        <div class="card hot">
+          <span class="task">Напиши бота</span>
+          <ul class="big-list">
+            <li>если пользователь пишет <span class="inline-code">стоп</span>, бот завершает работу;</li>
+            <li>если пишет <span class="inline-code">мем</span>, бот отвечает <span class="inline-code">Жиза</span>;</li>
+            <li>иначе бот пишет: <span class="inline-code">Ты сказал: ...</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="continue">
+      <h2><span class="inline-code">continue</span>: скипаем ход</h2>
+      <div class="content">
+        <pre><code>number = 0
+
+while number < 10:
+    number += 1
+
+    if number == 5:
+        continue
+
+    print(number)</code></pre>
+        <div class="card pink">
+          <p class="quote">Какого числа не будет в выводе?</p>
+          <p class="small">Это тот самый момент, когда код нажал "пропустить".</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="even">
+      <h2>Практика: только четные</h2>
+      <div class="content">
+        <div class="card">
+          <span class="task">Задача</span>
+          <ul>
+            <li>вывести числа от 1 до 20;</li>
+            <li>печатать только четные;</li>
+            <li>использовать <span class="inline-code">continue</span>.</li>
+          </ul>
+        </div>
+        <pre><code>n = 0
+
+while n < 20:
+    n += 1
+
+    if n % 2 != 0:
+        continue
+
+    print(n)</code></pre>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="flag">
+      <h2>Флаг: переменная-переключатель</h2>
+      <div class="content">
+        <pre><code>game_running = True
+
+while game_running:
+    command = input("Команда: ")
+
+    if command == "exit":
+        game_running = False
+    else:
+        print("Выполняю:", command)</code></pre>
+        <div class="card hot">
+          <p class="quote">Флаг - это тумблер.</p>
+          <ul>
+            <li><span class="inline-code">True</span> - работаем;</li>
+            <li><span class="inline-code">False</span> - остановились.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="menu">
+      <h2>Практика: меню приложения</h2>
+      <div class="content">
+        <div class="card yellow">
+          <span class="task">Меню</span>
+          <ul>
+            <li>1 - Поздороваться</li>
+            <li>2 - Рассказать шутку</li>
+            <li>3 - Выйти</li>
+            <li>любой другой ввод - "Такой команды нет"</li>
+          </ul>
+        </div>
+        <pre><code>running = True
+
+while running:
+    print("1 - Поздороваться")
+    print("2 - Рассказать шутку")
+    print("3 - Выйти")
+
+    choice = input("Выбор: ")
+    # допиши обработку команд</code></pre>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="debug">
+      <h2>Чекпоинт: найди баг</h2>
+      <div class="content">
+        <pre><code>count = 1
+
+while count <= 10:
+    if count % 2 == 0:
+        print(count)</code></pre>
+        <div class="card pink">
+          <p class="quote warning">Где проблема?</p>
+          <p class="small">Подсказка: какая переменная должна двигать цикл вперед?</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="game">
+      <h2>Игра: угадай число</h2>
+      <div class="content">
+        <pre><code>secret = 7
+guess = 0
+
+while guess != secret:
+    guess = int(input("Угадай число: "))
+
+    if guess < secret:
+        print("Больше")
+    elif guess > secret:
+        print("Меньше")
+
+print("Угадал!")</code></pre>
+        <div class="card hot">
+          <span class="task">Усложнения</span>
+          <ul>
+            <li>добавить счетчик попыток;</li>
+            <li>дать максимум 5 попыток;</li>
+            <li>загадать случайное число через <span class="inline-code">random</span>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="donate">
+      <h2>Практика: донат-бар</h2>
+      <div class="content single">
+        <div class="card hot">
+          <span class="task">Сюжет</span>
+          <p class="quote">Стример собирает 5000 рублей на новую клавиатуру.</p>
+          <ul>
+            <li>пользователь вводит донаты по одному;</li>
+            <li>после каждого доната показываем, сколько собрано и сколько осталось;</li>
+            <li>когда цель достигнута: "Сбор закрыт, чат легенда!"</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="nickname">
+      <h2>Практика: валидатор ника</h2>
+      <div class="content">
+        <div class="card">
+          <span class="task">Ник подходит, если</span>
+          <ul>
+            <li>не пустой;</li>
+            <li>минимум 3 символа;</li>
+            <li>не равен <span class="inline-code">admin</span>;</li>
+            <li>не содержит пробелы.</li>
+          </ul>
+        </div>
+        <pre><code>nickname = input("Придумай ник: ")
+
+while nickname == "" or len(nickname) < 3 or nickname == "admin":
+    print("Ник не подходит")
+    nickname = input("Придумай ник: ")
+
+print("Ник принят:", nickname)</code></pre>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="mini game">
+      <h2>Мини-игра: энергия персонажа</h2>
+      <div class="content single">
+        <div class="two-by-two">
+          <div class="mini-card">
+            <h3>Старт</h3>
+            <p>У персонажа 100 энергии.</p>
+          </div>
+          <div class="mini-card">
+            <h3>Бежать</h3>
+            <p>Минус 20 энергии.</p>
+          </div>
+          <div class="mini-card">
+            <h3>Отдохнуть</h3>
+            <p>Плюс 10 энергии, но максимум 100.</p>
+          </div>
+          <div class="mini-card">
+            <h3>Финиш</h3>
+            <p>Если энергия 0 или меньше, игра закончилась.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="project">
+      <h2>Мини-проект: Tamagotchi Lite</h2>
+      <div class="content">
+        <div class="card hot">
+          <ul>
+            <li>у питомца есть голод от 0 до 10;</li>
+            <li>покормить - голод уменьшается;</li>
+            <li>играть - голод увеличивается;</li>
+            <li>если голод стал 10, питомец обиделся и ушел.</li>
+          </ul>
+        </div>
+        <div class="meme">
+          <div>
+            <strong>CAT MODE</strong>
+            <span>Ты забыл покормить меня из-за бесконечного цикла?</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="battle">
+      <h2>Баттл: кто быстрее?</h2>
+      <div class="content single">
+        <div class="two-by-two">
+          <div class="mini-card"><h3>1</h3><p>Вывести все числа от 30 до 1.</p></div>
+          <div class="mini-card"><h3>2</h3><p>Посчитать сумму чисел от 1 до n.</p></div>
+          <div class="mini-card"><h3>3</h3><p>Вводить числа до 0 и вывести сумму.</p></div>
+          <div class="mini-card"><h3>4</h3><p>Считать, сколько раз написали "лол", пока не ввели "стоп".</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="hard">
+      <h2>Задача посложнее: сумма цифр</h2>
+      <div class="content">
+        <pre><code>number = int(input("Введите число: "))
+total = 0
+
+while number > 0:
+    digit = number % 10
+    total += digit
+    number //= 10
+
+print("Сумма цифр:", total)</code></pre>
+        <div class="card yellow">
+          <p class="quote">Что происходит с числом 12345 на каждом круге?</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="boss">
+      <h2>Финальный челлендж: антиспам-бот</h2>
+      <div class="content single">
+        <div class="card pink">
+          <ul class="big-list">
+            <li>работает до команды <span class="inline-code">стоп</span>;</li>
+            <li>считает все сообщения;</li>
+            <li>считает сообщения <span class="inline-code">спам</span>;</li>
+            <li>если спама 3 раза, выводит <span class="inline-code">Бан на 5 минут</span> и завершает работу;</li>
+            <li>в конце выводит статистику.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="solution">
+      <h2>Решение финального челленджа</h2>
+      <div class="content">
+        <pre><code>total_messages = 0
+spam_count = 0
+
+while True:
+    message = input("Сообщение: ")
+
+    if message == "стоп":
+        break
+
+    total_messages += 1
+
+    if message == "спам":
+        spam_count += 1
+
+    if spam_count == 3:
+        print("Бан на 5 минут")
+        break
+
+print("Всего сообщений:", total_messages)
+print("Спама:", spam_count)</code></pre>
+        <div class="card">
+          <p class="quote">Считаем ли команду "стоп" сообщением?</p>
+          <p class="small">Это отличный повод поговорить о логике программы.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="recap">
+      <h2>Что забираем с собой</h2>
+      <div class="content single">
+        <div class="card hot">
+          <ul class="big-list">
+            <li><span class="inline-code">while</span> нужен, когда количество повторов заранее неизвестно;</li>
+            <li>условие остановки должно реально наступить;</li>
+            <li><span class="inline-code">break</span> завершает цикл;</li>
+            <li><span class="inline-code">continue</span> пропускает текущий круг;</li>
+            <li>счетчики и флаги делают цикл управляемым.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-kicker="homework">
+      <h2>Домашка на выбор</h2>
+      <div class="content single">
+        <div class="two-by-two">
+          <div class="mini-card"><h3>Банкомат</h3><p>Баланс, пополнение, снятие, выход.</p></div>
+          <div class="mini-card"><h3>Квест-комната</h3><p>Команды, предметы, поиск выхода.</p></div>
+          <div class="mini-card"><h3>Трекер привычки</h3><p>Считать серию дней подряд.</p></div>
+          <div class="mini-card"><h3>Магазин</h3><p>Добавлять товары до команды "оплатить".</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="nav">
+    <div>
+      <span id="counter">1 / 1</span>
+      <span class="small"> · стрелки, пробел, кнопки</span>
+    </div>
+    <div class="buttons">
+      <button type="button" id="prev">Назад</button>
+      <button type="button" id="next">Дальше</button>
+    </div>
+  </div>
+  <div class="progress"><span id="progress"></span></div>
+
+  <script>
+    const slides = [...document.querySelectorAll(".slide")];
+    const counter = document.querySelector("#counter");
+    const progress = document.querySelector("#progress");
+    const prev = document.querySelector("#prev");
+    const next = document.querySelector("#next");
+    let current = 0;
+
+    function showSlide(index) {
+      current = Math.max(0, Math.min(index, slides.length - 1));
+      slides.forEach((slide, slideIndex) => {
+        slide.classList.toggle("active", slideIndex === current);
+      });
+      counter.textContent = `${current + 1} / ${slides.length}`;
+      progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+      prev.disabled = current === 0;
+      next.disabled = current === slides.length - 1;
+    }
+
+    function goNext() {
+      showSlide(current + 1);
+    }
+
+    function goPrev() {
+      showSlide(current - 1);
+    }
+
+    next.addEventListener("click", goNext);
+    prev.addEventListener("click", goPrev);
+
+    document.addEventListener("keydown", (event) => {
+      if (["ArrowRight", "PageDown", " "].includes(event.key)) {
+        event.preventDefault();
+        goNext();
+      }
+
+      if (["ArrowLeft", "PageUp"].includes(event.key)) {
+        event.preventDefault();
+        goPrev();
+      }
+    });
+
+    showSlide(0);
+  </script>
+</body>
+</html>

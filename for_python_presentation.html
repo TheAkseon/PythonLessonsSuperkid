@@ -1,0 +1,1437 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Цикл for в Python</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --slide: #ffffff;
+      --text: #172033;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --green: #16a34a;
+      --orange: #f59e0b;
+      --red: #dc2626;
+      --purple: #7c3aed;
+      --border: #dbe3ef;
+      --code-bg: #0f172a;
+      --code-text: #e5edff;
+      --shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      color: var(--text);
+      background: var(--bg);
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: none;
+      padding: 54px 72px 92px;
+      background:
+        radial-gradient(circle at 88% 12%, rgba(37, 99, 235, 0.12), transparent 28%),
+        radial-gradient(circle at 9% 85%, rgba(124, 58, 237, 0.1), transparent 24%),
+        var(--slide);
+    }
+
+    .slide.active {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 30px;
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+    }
+
+    h1 {
+      max-width: 1050px;
+      font-size: clamp(60px, 8vw, 105px);
+    }
+
+    h2 {
+      max-width: 1050px;
+      font-size: clamp(42px, 5vw, 72px);
+    }
+
+    .accent {
+      color: var(--primary);
+    }
+
+    .subtitle {
+      max-width: 900px;
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 28px;
+      line-height: 1.35;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      min-height: 0;
+      align-items: start;
+    }
+
+    .content.single {
+      grid-template-columns: 1fr;
+    }
+
+    .content.three {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .card {
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: white;
+      box-shadow: var(--shadow);
+    }
+
+    .card.blue {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+
+    .card.green {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .card.orange {
+      background: #fffbeb;
+      border-color: #fde68a;
+    }
+
+    .card.purple {
+      background: #f5f3ff;
+      border-color: #ddd6fe;
+    }
+
+    .label {
+      display: inline-block;
+      margin-bottom: 16px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: white;
+      background: var(--primary);
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .label.green {
+      background: var(--green);
+    }
+
+    .label.orange {
+      background: var(--orange);
+    }
+
+    .label.purple {
+      background: var(--purple);
+    }
+
+    p,
+    li {
+      font-size: 25px;
+      line-height: 1.42;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    ul,
+    ol {
+      margin: 0;
+      padding-left: 1.2em;
+    }
+
+    li + li {
+      margin-top: 12px;
+    }
+
+    .big {
+      font-size: 34px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    code,
+    .inline-code {
+      font-family: Consolas, "JetBrains Mono", monospace;
+    }
+
+    .inline-code {
+      padding: 3px 8px;
+      border-radius: 8px;
+      color: var(--primary-dark);
+      background: #dbeafe;
+      font-weight: 700;
+    }
+
+    pre {
+      margin: 0;
+      max-height: 520px;
+      overflow: auto;
+      padding: 24px;
+      border-radius: 22px;
+      background: var(--code-bg);
+      box-shadow: var(--shadow);
+      color: var(--code-text);
+      font-size: 22px;
+      line-height: 1.35;
+    }
+
+    .task-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .task {
+      min-height: 150px;
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: white;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    .task h3 {
+      margin: 0 0 10px;
+      color: var(--primary);
+      font-size: 27px;
+    }
+
+    .task p {
+      color: var(--text);
+      font-size: 22px;
+    }
+
+    .quiz {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .quiz button {
+      padding: 17px 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: white;
+      color: var(--text);
+      font-size: 22px;
+      text-align: left;
+      cursor: pointer;
+      transition: 150ms ease;
+    }
+
+    .quiz button:hover {
+      border-color: var(--primary);
+      background: #eff6ff;
+    }
+
+    .quiz button.correct {
+      border-color: #86efac;
+      background: #dcfce7;
+      color: #14532d;
+    }
+
+    .quiz button.wrong {
+      border-color: #fecaca;
+      background: #fee2e2;
+      color: #7f1d1d;
+    }
+
+    .answer {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 14px;
+      background: #f0fdf4;
+      color: #14532d;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .answer.show {
+      display: block;
+    }
+
+    .nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      padding: 0 72px;
+      border-top: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+    }
+
+    .counter {
+      color: var(--muted);
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .progress {
+      width: 260px;
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e2e8f0;
+    }
+
+    .progress span {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--purple));
+      transition: width 180ms ease;
+    }
+
+    button.nav-btn {
+      min-width: 98px;
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 12px;
+      color: white;
+      background: var(--primary);
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.nav-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    button.nav-btn:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    @media (max-width: 920px) {
+      body {
+        overflow: auto;
+      }
+
+      .deck,
+      .slide {
+        height: auto;
+        min-height: 100vh;
+      }
+
+      .slide {
+        position: static;
+        padding: 32px 20px 96px;
+      }
+
+      .slide:not(.active) {
+        display: none;
+      }
+
+      .slide.active {
+        display: block;
+      }
+
+      .content,
+      .content.three,
+      .task-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 52px;
+      }
+
+      h2 {
+        font-size: 40px;
+      }
+
+      p,
+      li,
+      pre,
+      .quiz button {
+        font-size: 19px;
+      }
+
+      .nav {
+        padding: 0 16px;
+      }
+
+      .progress {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck">
+    <section class="slide active">
+      <header>
+        <h1>Цикл <span class="accent">for</span> в Python</h1>
+        <p class="subtitle">Обычная понятная презентация с большим количеством практики, задач, мини-проектов и викториной именно по циклу <span class="inline-code">for</span>.</p>
+      </header>
+      <div class="content three">
+        <div class="card blue">
+          <span class="label">Цель</span>
+          <p>Научиться использовать <span class="inline-code">for</span>, когда нужно пройтись по числам, строкам, спискам и данным.</p>
+        </div>
+        <div class="card green">
+          <span class="label green">Формат</span>
+          <p>Короткая теория, сразу практика, затем задачи на выбор и финальный мини-проект.</p>
+        </div>
+        <div class="card orange">
+          <span class="label orange">Итог</span>
+          <p>Ученики понимают, когда использовать <span class="inline-code">for</span>, и умеют решать задачи без копипасты.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Зачем нужен <span class="accent">for</span></h2>
+      </header>
+      <div class="content">
+        <div class="card">
+          <p class="big">Цикл <span class="inline-code">for</span> нужен, когда мы хотим пройтись по набору значений.</p>
+          <br>
+          <ul>
+            <li>по числам из <span class="inline-code">range</span>;</li>
+            <li>по буквам строки;</li>
+            <li>по элементам списка;</li>
+            <li>по индексам, если нужно работать с позициями.</li>
+          </ul>
+        </div>
+        <div class="card purple">
+          <span class="label purple">Главная мысль</span>
+          <p class="big">Если понятно, по чему мы идем, чаще всего подойдет <span class="inline-code">for</span>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Синтаксис</h2>
+      </header>
+      <div class="content">
+        <pre><code>for переменная in набор_значений:
+    действие</code></pre>
+        <div class="card blue">
+          <span class="label">Как читать</span>
+          <p>Для каждого значения из набора положи это значение в переменную и выполни блок кода.</p>
+          <br>
+          <p class="muted">Переменную можно называть понятно: <span class="inline-code">number</span>, <span class="inline-code">letter</span>, <span class="inline-code">mark</span>, <span class="inline-code">player</span>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Как <span class="accent">for</span> работает внутри</h2>
+      </header>
+      <div class="content">
+        <div class="card blue">
+          <span class="label">Механика</span>
+          <ol>
+            <li>Python берет первый элемент из набора.</li>
+            <li>Кладет его в переменную цикла.</li>
+            <li>Выполняет тело цикла.</li>
+            <li>Берет следующий элемент.</li>
+            <li>Когда элементы закончились, цикл завершается.</li>
+          </ol>
+        </div>
+        <pre><code>for number in [10, 20, 30]:
+    print("Сейчас number =", number)
+
+print("Цикл закончился")</code></pre>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Переменная цикла</h2>
+      </header>
+      <div class="content">
+        <div class="card green">
+          <p class="big">Переменная цикла каждый раз получает новое значение.</p>
+          <br>
+          <p>Ее имя выбираем по смыслу: <span class="inline-code">number</span>, <span class="inline-code">letter</span>, <span class="inline-code">price</span>, <span class="inline-code">player</span>.</p>
+        </div>
+        <pre><code>for price in [100, 250, 90]:
+    print("Цена товара:", price)
+
+for letter in "code":
+    print("Буква:", letter)</code></pre>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2><span class="accent">for</span> + <span class="accent">range</span></h2>
+      </header>
+      <div class="content">
+        <pre><code>for i in range(5):
+    print(i)</code></pre>
+        <div class="card">
+          <ul>
+            <li><span class="inline-code">range(5)</span> дает числа 0, 1, 2, 3, 4.</li>
+            <li><span class="inline-code">range(1, 6)</span> дает 1, 2, 3, 4, 5.</li>
+            <li><span class="inline-code">range(2, 11, 2)</span> дает 2, 4, 6, 8, 10.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Почему конец <span class="accent">range</span> не включается</h2>
+      </header>
+      <div class="content">
+        <div class="card orange">
+          <span class="label orange">Важно</span>
+          <p class="big"><span class="inline-code">range(1, 6)</span> дает 1, 2, 3, 4, 5.</p>
+          <br>
+          <p>Второе число - это граница остановки. Python останавливается перед ней.</p>
+        </div>
+        <pre><code>for number in range(1, 6):
+    print(number)
+
+# Вывод:
+# 1
+# 2
+# 3
+# 4
+# 5</code></pre>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Шаг в <span class="accent">range</span></h2>
+      </header>
+      <div class="content">
+        <pre><code>for number in range(0, 11, 2):
+    print(number)
+
+for number in range(10, 0, -1):
+    print(number)</code></pre>
+        <div class="card purple">
+          <span class="label purple">Формула</span>
+          <p class="big"><span class="inline-code">range(start, stop, step)</span></p>
+          <br>
+          <ul>
+            <li><span class="inline-code">start</span> - откуда начинаем;</li>
+            <li><span class="inline-code">stop</span> - где останавливаемся;</li>
+            <li><span class="inline-code">step</span> - как двигаемся.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Практика 1: числа</h2>
+      </header>
+      <div class="content single">
+        <div class="task-grid">
+          <div class="task"><h3>Задача 1</h3><p>Вывести числа от 1 до 20.</p></div>
+          <div class="task"><h3>Задача 2</h3><p>Вывести числа от 10 до 1 в обратном порядке.</p></div>
+          <div class="task"><h3>Задача 3</h3><p>Вывести только четные числа от 2 до 50.</p></div>
+          <div class="task"><h3>Задача 4</h3><p>Вывести числа 5, 10, 15, ..., 100.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Разбор практики 1</h2>
+      </header>
+      <div class="content">
+        <pre><code>for number in range(1, 21):
+    print(number)
+
+for number in range(10, 0, -1):
+    print(number)
+
+for number in range(2, 51, 2):
+    print(number)
+
+for number in range(5, 101, 5):
+    print(number)</code></pre>
+        <div class="card orange">
+          <span class="label orange">Вопрос</span>
+          <p>Почему в <span class="inline-code">range(1, 21)</span> стоит 21, если нам нужно вывести до 20?</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Накопление суммы</h2>
+      </header>
+      <div class="content">
+        <pre><code>total = 0
+
+for number in range(1, 101):
+    total += number
+
+print("Сумма:", total)</code></pre>
+        <div class="card green">
+          <span class="label green">Шаблон</span>
+          <p>Перед циклом создаем переменную для результата. Внутри цикла постепенно обновляем ее.</p>
+          <br>
+          <p class="big"><span class="inline-code">total += number</span></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Паттерны внутри <span class="accent">for</span></h2>
+      </header>
+      <div class="content single">
+        <div class="task-grid">
+          <div class="task"><h3>Сумма</h3><p>Создаем <span class="inline-code">total = 0</span> и прибавляем значения внутри цикла.</p></div>
+          <div class="task"><h3>Счетчик</h3><p>Создаем <span class="inline-code">count = 0</span> и увеличиваем, если условие выполнено.</p></div>
+          <div class="task"><h3>Максимум</h3><p>Храним лучший результат и обновляем его, если нашли больше.</p></div>
+          <div class="task"><h3>Флаг</h3><p>Создаем <span class="inline-code">found = False</span>, меняем на <span class="inline-code">True</span>, если нашли нужный элемент.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Практика 2: суммы и счетчики</h2>
+      </header>
+      <div class="content single">
+        <div class="task-grid">
+          <div class="task"><h3>Сумма</h3><p>Посчитать сумму чисел от 1 до <span class="inline-code">n</span>.</p></div>
+          <div class="task"><h3>Четные</h3><p>Посчитать сумму четных чисел от 1 до 100.</p></div>
+          <div class="task"><h3>Количество</h3><p>Посчитать, сколько чисел от 1 до 100 делятся на 7.</p></div>
+          <div class="task"><h3>Произведение</h3><p>Посчитать произведение чисел от 1 до 5.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Разбор практики 2</h2>
+      </header>
+      <div class="content">
+        <pre><code>n = int(input("Введите n: "))
+total = 0
+
+for number in range(1, n + 1):
+    total += number
+
+print("Сумма от 1 до n:", total)
+
+even_total = 0
+for number in range(2, 101, 2):
+    even_total += number
+
+print("Сумма четных:", even_total)</code></pre>
+        <pre><code>count = 0
+
+for number in range(1, 101):
+    if number % 7 == 0:
+        count += 1
+
+print("Делятся на 7:", count)
+
+result = 1
+for number in range(1, 6):
+    result *= number
+
+print("Произведение:", result)</code></pre>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2><span class="accent">for</span> по строке</h2>
+      </header>
+      <div class="content">
+        <pre><code>word = "python"
+
+for letter in word:
+    print(letter)</code></pre>
+        <div class="card blue">
+          <p>Строка состоит из символов. Цикл <span class="inline-code">for</span> может взять каждый символ по очереди.</p>
+          <br>
+          <ul>
+            <li>считать буквы;</li>
+            <li>искать символы;</li>
+            <li>делать проверку ника;</li>
+            <li>создавать текстовые эффекты.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Что можно делать с символами</h2>
+      </header>
+      <div class="content">
+        <pre><code>text = "Python 3"
+
+for symbol in text:
+    if symbol.isalpha():
+        print(symbol, "буква")
+    elif symbol.isdigit():
+        print(symbol, "цифра")
+    else:
+        print(symbol, "другой символ")</code></pre>
+        <div class="card blue">
+          <ul>
+            <li><span class="inline-code">isalpha()</span> проверяет буквы;</li>
+            <li><span class="inline-code">isdigit()</span> проверяет цифры;</li>
+            <li><span class="inline-code">lower()</span> приводит к нижнему регистру;</li>
+            <li><span class="inline-code">upper()</span> приводит к верхнему регистру.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Практика 3: строки</h2>
+      </header>
+      <div class="content single">
+        <div class="task-grid">
+          <div class="task"><h3>Вертикальное слово</h3><p>Пользователь вводит слово. Вывести каждую букву с новой строки.</p></div>
+          <div class="task"><h3>Счетчик букв</h3><p>Посчитать, сколько в слове букв <span class="inline-code">а</span>.</p></div>
+          <div class="task"><h3>Проверка ника</h3><p>Посчитать, сколько в нике цифр и пробелов.</p></div>
+          <div class="task"><h3>Секретный текст</h3><p>Заменить каждую букву введенного слова на <span class="inline-code">*</span>.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Разбор практики 3: строки</h2>
+      </header>
+      <div class="content">
+        <pre><code>word = input("Введите слово: ")
+
+for letter in word:
+    print(letter)
+
+text = input("Введите текст: ")
+count = 0
+
+for letter in text:
+    if letter == "а":
+        count += 1
+
+print("Букв а:", count)</code></pre>
+        <pre><code>nickname = input("Ник: ")
+digits = 0
+spaces = 0
+
+for symbol in nickname:
+    if symbol.isdigit():
+        digits += 1
+    if symbol == " ":
+        spaces += 1
+
+print("Цифр:", digits)
+print("Пробелов:", spaces)
+
+secret = ""
+for letter in word:
+    secret += "*"
+
+print(secret)</code></pre>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2><span class="accent">for</span> по списку</h2>
+      </header>
+      <div class="content">
+        <pre><code>players = ["Аня", "Миша", "Лера"]
+
+for player in players:
+    print(player, "готов к игре")</code></pre>
+        <div class="card purple">
+          <p>Список - это набор элементов. Через <span class="inline-code">for</span> можно обработать каждый элемент одинаковым способом.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Элемент или индекс?</h2>
+      </header>
+      <div class="content">
+        <pre><code>marks = [5, 4, 3]
+
+# Когда нужен сам элемент
+for mark in marks:
+    print(mark)
+
+# Когда нужен номер элемента
+for i in range(len(marks)):
+    print("Оценка", i + 1, "=", marks[i])</code></pre>
+        <div class="card orange">
+          <span class="label orange">Правило</span>
+          <p>Если нужен только элемент, перебираем список напрямую. Если нужен номер или несколько списков одновременно, используем индекс.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Практика 4: списки</h2>
+      </header>
+      <div class="content single">
+        <div class="task-grid">
+          <div class="task"><h3>Оценки</h3><p>Есть список оценок. Посчитать средний балл.</p></div>
+          <div class="task"><h3>Покупки</h3><p>Есть список цен. Посчитать итоговую сумму.</p></div>
+          <div class="task"><h3>Донаты</h3><p>Есть список донатов. Найти самый большой.</p></div>
+          <div class="task"><h3>Инвентарь</h3><p>Есть список предметов. Проверить, есть ли ключ.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Разбор практики 4: списки</h2>
+      </header>
+      <div class="content">
+        <pre><code>marks = [5, 4, 3, 5, 4, 5]
+total = 0
+
+for mark in marks:
+    total += mark
+
+average = total / len(marks)
+print("Средний балл:", average)
+
+prices = [120, 350, 90, 1490, 230]
+total_price = 0
+
+for price in prices:
+    total_price += price
+
+print("Сумма покупок:", total_price)</code></pre>
+        <pre><code>donates = [100, 750, 300, 1200, 50]
+max_donate = 0
+
+for donate in donates:
+    if donate > max_donate:
+        max_donate = donate
+
+print("Самый большой донат:", max_donate)
+
+items = ["меч", "аптечка", "ключ"]
+has_key = False
+
+for item in items:
+    if item == "ключ":
+        has_key = True
+
+print("Ключ есть:", has_key)</code></pre>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Индексы в <span class="accent">for</span></h2>
+      </header>
+      <div class="content">
+        <pre><code>players = ["Аня", "Миша", "Лера"]
+scores = [120, 90, 150]
+
+for i in range(len(players)):
+    print(players[i], "-", scores[i])</code></pre>
+        <div class="card blue">
+          <p>Индексы нужны, когда нужно одновременно работать с несколькими списками или знать номер элемента.</p>
+          <br>
+          <p class="muted">Позже можно показать <span class="inline-code">enumerate</span>, но для первого урока достаточно <span class="inline-code">range(len(...))</span>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2><span class="accent">break</span> и <span class="accent">continue</span> в for</h2>
+      </header>
+      <div class="content">
+        <pre><code>items = ["меч", "монета", "ключ", "зелье"]
+
+for item in items:
+    if item == "ключ":
+        print("Ключ найден")
+        break
+
+for number in range(1, 11):
+    if number % 2 != 0:
+        continue
+    print(number)</code></pre>
+        <div class="card purple">
+          <ul>
+            <li><span class="inline-code">break</span> останавливает цикл досрочно;</li>
+            <li><span class="inline-code">continue</span> пропускает текущий круг;</li>
+            <li>в <span class="inline-code">for</span> они работают так же, как в других циклах.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Мини-практика: рейтинг игроков</h2>
+      </header>
+      <div class="content single">
+        <div class="card green">
+          <span class="label green">Задача</span>
+          <ul>
+            <li>есть список игроков и список очков;</li>
+            <li>вывести каждого игрока и его очки;</li>
+            <li>найти победителя;</li>
+            <li>посчитать средний результат;</li>
+            <li>вывести игроков, которые набрали больше среднего.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Разбор: рейтинг игроков</h2>
+      </header>
+      <div class="content">
+        <pre><code>players = ["Аня", "Миша", "Лера", "Даня"]
+scores = [120, 95, 180, 140]
+
+total = 0
+best_score = scores[0]
+best_player = players[0]
+
+for i in range(len(players)):
+    print(players[i], "-", scores[i])
+    total += scores[i]
+
+    if scores[i] > best_score:
+        best_score = scores[i]
+        best_player = players[i]</code></pre>
+        <pre><code>average = total / len(scores)
+
+print("Победитель:", best_player)
+print("Средний результат:", average)
+
+print("Выше среднего:")
+for i in range(len(players)):
+    if scores[i] > average:
+        print(players[i], scores[i])</code></pre>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Вложенные циклы <span class="accent">for</span></h2>
+      </header>
+      <div class="content">
+        <pre><code>for row in range(3):
+    for col in range(5):
+        print("*", end="")
+    print()</code></pre>
+        <div class="card purple">
+          <p>Вложенный цикл - это цикл внутри цикла. Он полезен для таблиц, сеток, пиксель-арта и повторяющихся строк.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Практика 5: пиксель-арт</h2>
+      </header>
+      <div class="content single">
+        <div class="task-grid">
+          <div class="task"><h3>Квадрат</h3><p>Нарисовать квадрат 5 на 5 из <span class="inline-code">*</span>.</p></div>
+          <div class="task"><h3>Прямоугольник</h3><p>Пользователь вводит ширину и высоту. Нарисовать прямоугольник.</p></div>
+          <div class="task"><h3>Лестница</h3><p>Первая строка 1 символ, вторая 2, третья 3.</p></div>
+          <div class="task"><h3>Рамка</h3><p>Нарисовать прямоугольник, у которого пустая середина.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Разбор практики 5: пиксель-арт</h2>
+      </header>
+      <div class="content">
+        <pre><code>size = 5
+
+for row in range(size):
+    for col in range(size):
+        print("*", end="")
+    print()
+
+height = int(input("Высота: "))
+width = int(input("Ширина: "))
+
+for row in range(height):
+    for col in range(width):
+        print("#", end="")
+    print()</code></pre>
+        <pre><code>height = 6
+
+for row in range(1, height + 1):
+    for col in range(row):
+        print("*", end="")
+    print()
+
+height = 5
+width = 8
+
+for row in range(height):
+    for col in range(width):
+        if row == 0 or row == height - 1 or col == 0 or col == width - 1:
+            print("*", end="")
+        else:
+            print(" ", end="")
+    print()</code></pre>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Частые ошибки с <span class="accent">for</span></h2>
+      </header>
+      <div class="content single">
+        <div class="card">
+          <ul>
+            <li>ждать, что <span class="inline-code">range(5)</span> даст число 5;</li>
+            <li>забывать двоеточие после строки <span class="inline-code">for</span>;</li>
+            <li>путать элемент списка и индекс;</li>
+            <li>изменять список внутри цикла без понимания последствий;</li>
+            <li>использовать <span class="inline-code">while</span>, хотя данные уже лежат в списке.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Баттл задач по <span class="accent">for</span></h2>
+      </header>
+      <div class="content single">
+        <div class="task-grid">
+          <div class="task"><h3>Раунд 1</h3><p>Вывести таблицу умножения на 7.</p></div>
+          <div class="task"><h3>Раунд 2</h3><p>Посчитать сумму чисел, которые делятся на 3 от 1 до 100.</p></div>
+          <div class="task"><h3>Раунд 3</h3><p>В строке посчитать гласные буквы.</p></div>
+          <div class="task"><h3>Раунд 4</h3><p>В списке донатов найти сумму, максимум и количество донатов больше 500.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Разбор баттла</h2>
+      </header>
+      <div class="content">
+        <pre><code>for number in range(1, 11):
+    print(number, "* 7 =", number * 7)
+
+total = 0
+for number in range(1, 101):
+    if number % 3 == 0:
+        total += number
+
+print("Сумма:", total)</code></pre>
+        <pre><code>text = input("Текст: ")
+vowels = "аеёиоуыэюя"
+count = 0
+
+for letter in text.lower():
+    if letter in vowels:
+        count += 1
+
+print("Гласных:", count)
+
+donates = [100, 750, 300, 1200, 50, 900]
+total = 0
+maximum = 0
+big_count = 0
+
+for donate in donates:
+    total += donate
+    if donate > maximum:
+        maximum = donate
+    if donate > 500:
+        big_count += 1</code></pre>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Мини-проект: аналитика стрима + разбор</h2>
+      </header>
+      <div class="content">
+        <div class="card green">
+          <span class="label green">Требования</span>
+          <ul>
+            <li>дан список донатов;</li>
+            <li>найти сумму;</li>
+            <li>найти самый большой донат;</li>
+            <li>посчитать донаты больше 500;</li>
+            <li>вывести "стрим залетел", если сумма больше 3000.</li>
+          </ul>
+        </div>
+        <pre><code>donates = [100, 750, 300, 1200, 50, 900]
+total = 0
+max_donate = 0
+big_count = 0
+
+for donate in donates:
+    total += donate
+    if donate > max_donate:
+        max_donate = donate
+    if donate > 500:
+        big_count += 1
+
+print("Сумма:", total)
+print("Максимум:", max_donate)
+print("Донатов больше 500:", big_count)
+
+if total > 3000:
+    print("Стрим залетел")</code></pre>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Викторина по <span class="accent">for</span>: вопрос 1</h2>
+      </header>
+      <div class="content">
+        <div class="card">
+          <p class="big">Что выведет код?</p>
+          <pre><code>for i in range(3):
+    print(i)</code></pre>
+        </div>
+        <div class="card blue">
+          <div class="quiz" data-answer="1">
+            <button type="button">1, 2, 3</button>
+            <button type="button">0, 1, 2</button>
+            <button type="button">0, 1, 2, 3</button>
+            <button type="button">3, 2, 1</button>
+          </div>
+          <div class="answer">Правильно: <span class="inline-code">range(3)</span> дает 0, 1, 2.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Викторина по <span class="accent">for</span>: вопрос 2</h2>
+      </header>
+      <div class="content">
+        <div class="card">
+          <p class="big">Какой цикл лучше подойдет, чтобы пройтись по списку оценок?</p>
+        </div>
+        <div class="card green">
+          <div class="quiz" data-answer="2">
+            <button type="button">Только бесконечный цикл</button>
+            <button type="button">Только ручной ввод без цикла</button>
+            <button type="button">Цикл for</button>
+            <button type="button">Никакой, список нельзя перебирать</button>
+          </div>
+          <div class="answer">Правильно: список удобно перебирать через <span class="inline-code">for</span>.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Викторина по <span class="accent">for</span>: вопрос 3</h2>
+      </header>
+      <div class="content">
+        <div class="card">
+          <p class="big">Что означает переменная <span class="inline-code">letter</span> в этом коде?</p>
+          <pre><code>for letter in "python":
+    print(letter)</code></pre>
+        </div>
+        <div class="card orange">
+          <div class="quiz" data-answer="0">
+            <button type="button">Текущий символ строки</button>
+            <button type="button">Всегда первая буква строки</button>
+            <button type="button">Количество букв в строке</button>
+            <button type="button">Индекс символа</button>
+          </div>
+          <div class="answer">Правильно: на каждом круге <span class="inline-code">letter</span> получает очередной символ.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Викторина по <span class="accent">for</span>: вопрос 4</h2>
+      </header>
+      <div class="content">
+        <div class="card">
+          <p class="big">Как вывести числа 2, 4, 6, 8, 10?</p>
+        </div>
+        <div class="card purple">
+          <div class="quiz" data-answer="3">
+            <button type="button">range(2, 10)</button>
+            <button type="button">range(1, 10, 2)</button>
+            <button type="button">range(2, 10, 2)</button>
+            <button type="button">range(2, 11, 2)</button>
+          </div>
+          <div class="answer">Правильно: конец диапазона не включается, поэтому нужен 11.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Финальный проект: рейтинг игроков</h2>
+      </header>
+      <div class="content single">
+        <div class="card blue">
+          <span class="label">Задача</span>
+          <ul>
+            <li>есть список игроков и список очков;</li>
+            <li>вывести таблицу результатов;</li>
+            <li>найти победителя;</li>
+            <li>посчитать средний счет;</li>
+            <li>вывести всех игроков, которые набрали больше среднего;</li>
+            <li>добавить красивый текстовый баннер турнира.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Разбор финального проекта</h2>
+      </header>
+      <div class="content">
+        <pre><code>players = ["Аня", "Миша", "Лера", "Даня"]
+scores = [120, 95, 180, 140]
+
+print("=" * 24)
+print("ТУРНИР PYTHON FOR")
+print("=" * 24)
+
+total = 0
+best_player = players[0]
+best_score = scores[0]
+
+for i in range(len(players)):
+    print(players[i], "-", scores[i])
+    total += scores[i]
+
+    if scores[i] > best_score:
+        best_score = scores[i]
+        best_player = players[i]</code></pre>
+        <pre><code>average = total / len(scores)
+
+print("Победитель:", best_player)
+print("Лучший счет:", best_score)
+print("Средний счет:", average)
+
+print("Игроки выше среднего:")
+
+for i in range(len(players)):
+    if scores[i] > average:
+        print(players[i], scores[i])</code></pre>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Домашка на выбор</h2>
+      </header>
+      <div class="content single">
+        <div class="task-grid">
+          <div class="task"><h3>Генератор пароля</h3><p>Пройтись по символам и собрать пароль по правилам.</p></div>
+          <div class="task"><h3>Анализ сообщений</h3><p>В списке сообщений посчитать короткие, длинные и содержащие слово "спам".</p></div>
+          <div class="task"><h3>Плейлист</h3><p>Есть список длительностей треков. Посчитать общую длительность и самый длинный трек.</p></div>
+          <div class="task"><h3>Инвентарь героя</h3><p>Проверить предметы, посчитать аптечки и найти ключ.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Разбор домашки: шаблоны</h2>
+      </header>
+      <div class="content">
+        <pre><code># Анализ сообщений
+messages = ["привет", "спам", "как дела", "спам"]
+spam_count = 0
+
+for message in messages:
+    if message == "спам":
+        spam_count += 1
+
+print("Спама:", spam_count)
+
+# Плейлист
+durations = [180, 210, 155, 240]
+total = 0
+longest = 0
+
+for duration in durations:
+    total += duration
+    if duration > longest:
+        longest = duration</code></pre>
+        <pre><code># Инвентарь героя
+items = ["ключ", "аптечка", "монета", "аптечка"]
+medkits = 0
+has_key = False
+
+for item in items:
+    if item == "аптечка":
+        medkits += 1
+    if item == "ключ":
+        has_key = True
+
+print("Аптечек:", medkits)
+print("Ключ есть:", has_key)</code></pre>
+      </div>
+    </section>
+
+    <section class="slide">
+      <header>
+        <h2>Итоги</h2>
+      </header>
+      <div class="content single">
+        <div class="card green">
+          <ul>
+            <li><span class="inline-code">for</span> перебирает значения из диапазона, строки или списка.</li>
+            <li><span class="inline-code">range</span> помогает повторить код нужное количество раз.</li>
+            <li>Счетчики и суммы удобно обновлять внутри цикла.</li>
+            <li>Вложенные <span class="inline-code">for</span> подходят для таблиц и рисунков.</li>
+            <li>Если данные уже есть в наборе, чаще всего выбираем <span class="inline-code">for</span>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="nav">
+    <div class="counter" id="counter">1 / 1</div>
+    <div class="buttons">
+      <button class="nav-btn" id="prev" type="button">Назад</button>
+      <div class="progress"><span id="progress"></span></div>
+      <button class="nav-btn" id="next" type="button">Дальше</button>
+    </div>
+  </nav>
+
+  <script>
+    const slides = [...document.querySelectorAll(".slide")];
+    const counter = document.querySelector("#counter");
+    const progress = document.querySelector("#progress");
+    const prev = document.querySelector("#prev");
+    const next = document.querySelector("#next");
+    let current = 0;
+
+    function showSlide(index) {
+      current = Math.max(0, Math.min(index, slides.length - 1));
+
+      slides.forEach((slide, slideIndex) => {
+        slide.classList.toggle("active", slideIndex === current);
+      });
+
+      counter.textContent = `${current + 1} / ${slides.length}`;
+      progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+      prev.disabled = current === 0;
+      next.disabled = current === slides.length - 1;
+    }
+
+    function goNext() {
+      showSlide(current + 1);
+    }
+
+    function goPrev() {
+      showSlide(current - 1);
+    }
+
+    next.addEventListener("click", goNext);
+    prev.addEventListener("click", goPrev);
+
+    document.addEventListener("keydown", (event) => {
+      if (["ArrowRight", "PageDown", " "].includes(event.key)) {
+        event.preventDefault();
+        goNext();
+      }
+
+      if (["ArrowLeft", "PageUp"].includes(event.key)) {
+        event.preventDefault();
+        goPrev();
+      }
+    });
+
+    document.querySelectorAll(".quiz").forEach((quiz) => {
+      const answerIndex = Number(quiz.dataset.answer);
+      const buttons = [...quiz.querySelectorAll("button")];
+      const answer = quiz.parentElement.querySelector(".answer");
+
+      buttons.forEach((button, index) => {
+        button.addEventListener("click", () => {
+          buttons.forEach((item, itemIndex) => {
+            item.classList.toggle("correct", itemIndex === answerIndex);
+            item.classList.toggle("wrong", itemIndex === index && itemIndex !== answerIndex);
+          });
+
+          if (answer) {
+            answer.classList.add("show");
+          }
+        });
+      });
+    });
+
+    showSlide(0);
+  </script>
+</body>
+</html>

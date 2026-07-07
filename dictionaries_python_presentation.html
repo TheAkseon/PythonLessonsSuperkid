@@ -1,0 +1,1242 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Словари в Python</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --slide: #ffffff;
+      --text: #172033;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --green: #16a34a;
+      --orange: #f59e0b;
+      --red: #dc2626;
+      --purple: #7c3aed;
+      --border: #dbe3ef;
+      --code-bg: #0f172a;
+      --code-text: #e5edff;
+      --shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      color: var(--text);
+      background: var(--bg);
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: none;
+      padding: 54px 72px 92px;
+      background:
+        radial-gradient(circle at 88% 12%, rgba(37, 99, 235, 0.12), transparent 28%),
+        radial-gradient(circle at 9% 85%, rgba(124, 58, 237, 0.1), transparent 24%),
+        var(--slide);
+    }
+
+    .slide.active {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 30px;
+    }
+
+    h1, h2 { margin: 0; line-height: 1.05; letter-spacing: -0.04em; }
+    h1 { max-width: 1050px; font-size: clamp(60px, 8vw, 105px); }
+    h2 { max-width: 1100px; font-size: clamp(42px, 5vw, 72px); }
+
+    .accent { color: var(--primary); }
+
+    .subtitle {
+      max-width: 940px;
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 28px;
+      line-height: 1.35;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      min-height: 0;
+      align-items: start;
+    }
+
+    .content.single { grid-template-columns: 1fr; }
+    .content.three { grid-template-columns: repeat(3, 1fr); }
+
+    .card {
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: white;
+      box-shadow: var(--shadow);
+    }
+
+    .card.blue { background: #eff6ff; border-color: #bfdbfe; }
+    .card.green { background: #f0fdf4; border-color: #bbf7d0; }
+    .card.orange { background: #fffbeb; border-color: #fde68a; }
+    .card.purple { background: #f5f3ff; border-color: #ddd6fe; }
+    .card.red { background: #fef2f2; border-color: #fecaca; }
+
+    .label {
+      display: inline-block;
+      margin-bottom: 16px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: white;
+      background: var(--primary);
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .label.green { background: var(--green); }
+    .label.orange { background: var(--orange); }
+    .label.purple { background: var(--purple); }
+    .label.red { background: var(--red); }
+
+    p, li { font-size: 25px; line-height: 1.42; }
+    p { margin: 0; }
+    ul, ol { margin: 0; padding-left: 1.2em; }
+    li + li { margin-top: 12px; }
+
+    .big { font-size: 34px; font-weight: 800; line-height: 1.25; }
+    .muted { color: var(--muted); }
+
+    code, .inline-code { font-family: Consolas, "JetBrains Mono", monospace; }
+
+    .inline-code {
+      padding: 3px 8px;
+      border-radius: 8px;
+      color: var(--primary-dark);
+      background: #dbeafe;
+      font-weight: 700;
+    }
+
+    pre {
+      margin: 0;
+      max-height: 520px;
+      overflow: auto;
+      padding: 24px;
+      border-radius: 22px;
+      background: var(--code-bg);
+      box-shadow: var(--shadow);
+      color: var(--code-text);
+      font-size: 22px;
+      line-height: 1.35;
+    }
+
+    .task-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .task {
+      min-height: 150px;
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: white;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    .task h3 { margin: 0 0 10px; color: var(--primary); font-size: 27px; }
+    .task p { color: var(--text); font-size: 22px; }
+
+    .pair-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .pair {
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: white;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+      font-size: 24px;
+    }
+
+    .pair strong { color: var(--primary); }
+
+    .quiz { display: grid; gap: 14px; margin-top: 16px; }
+
+    .quiz button {
+      padding: 17px 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: white;
+      color: var(--text);
+      font-size: 22px;
+      text-align: left;
+      cursor: pointer;
+      transition: 150ms ease;
+    }
+
+    .quiz button:hover { border-color: var(--primary); background: #eff6ff; }
+    .quiz button.correct { border-color: #86efac; background: #dcfce7; color: #14532d; }
+    .quiz button.wrong { border-color: #fecaca; background: #fee2e2; color: #7f1d1d; }
+
+    .answer {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 14px;
+      background: #f0fdf4;
+      color: #14532d;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .answer.show { display: block; }
+
+    .nav {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      padding: 0 72px;
+      border-top: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+    }
+
+    .counter { color: var(--muted); font-size: 17px; font-weight: 700; }
+    .buttons { display: flex; gap: 10px; align-items: center; }
+
+    .progress {
+      width: 260px; height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e2e8f0;
+    }
+
+    .progress span {
+      display: block;
+      width: 0; height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--purple));
+      transition: width 180ms ease;
+    }
+
+    button.nav-btn {
+      min-width: 98px;
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 12px;
+      color: white;
+      background: var(--primary);
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.nav-btn:hover { background: var(--primary-dark); }
+    button.nav-btn:disabled { opacity: 0.45; cursor: default; }
+
+    @media (max-width: 920px) {
+      body { overflow: auto; }
+      .deck, .slide { height: auto; min-height: 100vh; }
+      .slide { position: static; padding: 32px 20px 96px; }
+      .slide:not(.active) { display: none; }
+      .slide.active { display: block; }
+      .content, .content.three, .task-grid { grid-template-columns: 1fr; }
+      .pair { grid-template-columns: 1fr; }
+      h1 { font-size: 52px; }
+      h2 { font-size: 40px; }
+      p, li, pre, .quiz button, .pair { font-size: 19px; }
+      .nav { padding: 0 16px; }
+      .progress { display: none; }
+    }
+  </style>
+</head>
+<body>
+<main class="deck">
+
+  <!-- Слайд 1: Титул -->
+  <section class="slide active">
+    <header>
+      <h1>Словари в <span class="accent">Python</span></h1>
+      <p class="subtitle">Учимся хранить данные не просто по номеру, а по понятному имени: профиль игрока, меню магазина, инвентарь, оценки и мини-база данных.</p>
+    </header>
+    <div class="content three">
+      <div class="card blue">
+        <span class="label">Цель</span>
+        <p>Понять пары <span class="inline-code">ключ: значение</span> и научиться уверенно читать, менять и перебирать словари.</p>
+      </div>
+      <div class="card green">
+        <span class="label green">Формат</span>
+        <p>Теория короткими блоками, быстрые вопросы, практика, разбор ошибок и финальный мини-проект.</p>
+      </div>
+      <div class="card orange">
+        <span class="label orange">Итог</span>
+        <p>Сможем собрать программу, где данные выглядят как настоящая анкета, карточка товара или профиль героя.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 2: Зачем нужны словари -->
+  <section class="slide">
+    <header>
+      <h2>Список хранит порядок, а словарь хранит <span class="accent">смысл</span></h2>
+    </header>
+    <div class="content">
+      <div class="card orange">
+        <span class="label orange">Неудобно</span>
+        <pre><code>hero = ["Alex", 100, 7, "sword"]
+
+print(hero[0])
+print(hero[1])</code></pre>
+        <br>
+        <p class="muted">Что такое <span class="inline-code">hero[1]</span>? Здоровье? Деньги? Уровень?</p>
+      </div>
+      <div class="card green">
+        <span class="label green">Понятно</span>
+        <pre><code>hero = {
+    "name": "Alex",
+    "hp": 100,
+    "level": 7,
+    "weapon": "sword"
+}
+
+print(hero["name"])
+print(hero["hp"])</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 3: Главная идея -->
+  <section class="slide">
+    <header>
+      <h2>Словарь отвечает на вопрос: <span class="accent">что лежит по этому имени?</span></h2>
+    </header>
+    <div class="content">
+      <div class="card blue">
+        <span class="label">Идея</span>
+        <p class="big">Словарь состоит из пар:</p>
+        <br>
+        <div class="pair-list">
+          <div class="pair"><strong>ключ</strong><span>как мы ищем значение</span></div>
+          <div class="pair"><strong>значение</strong><span>что хранится внутри</span></div>
+        </div>
+      </div>
+      <pre><code>profile = {
+    "name": "Mira",
+    "city": "Moscow",
+    "age": 14
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- Слайд 4: Синтаксис -->
+  <section class="slide">
+    <header>
+      <h2>Синтаксис словаря строится вокруг <span class="accent">двоеточия</span></h2>
+    </header>
+    <div class="content">
+      <pre><code>player = {
+    "nickname": "Pixel",
+    "score": 1200,
+    "is_online": True
+}</code></pre>
+      <div class="card blue">
+        <span class="label">Как читать</span>
+        <ul>
+          <li>фигурные скобки создают словарь;</li>
+          <li>слева от двоеточия стоит ключ;</li>
+          <li>справа от двоеточия стоит значение;</li>
+          <li>пары разделяются запятыми.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 5: Ключи и значения -->
+  <section class="slide">
+    <header>
+      <h2>Ключи должны быть уникальными, значения могут повторяться</h2>
+    </header>
+    <div class="content">
+      <div class="card green">
+        <span class="label green">Можно</span>
+        <pre><code>grades = {
+    "Аня": 5,
+    "Миша": 5,
+    "Лера": 4
+}</code></pre>
+      </div>
+      <div class="card red">
+        <span class="label red">Опасно</span>
+        <pre><code>user = {
+    "name": "Alex",
+    "name": "Max"
+}
+
+print(user["name"])</code></pre>
+        <br>
+        <p class="muted">Если ключ повторился, останется последнее значение.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 6: Быстрый разогрев -->
+  <section class="slide">
+    <header>
+      <h2>Разогрев: что выведет программа?</h2>
+    </header>
+    <div class="content">
+      <pre><code>pet = {
+    "name": "Барсик",
+    "type": "кот",
+    "age": 3
+}
+
+print(pet["type"])
+print(pet["age"])</code></pre>
+      <div class="card purple">
+        <span class="label purple">Вопрос</span>
+        <p>Сначала ответьте без запуска кода. Потом проверьте в Python.</p>
+        <div class="quiz" data-answer="1">
+          <button type="button">Барсик и кот</button>
+          <button type="button">кот и 3</button>
+          <button type="button">name и age</button>
+        </div>
+        <div class="answer">Правильно: мы обращаемся к значениям по ключам <span class="inline-code">"type"</span> и <span class="inline-code">"age"</span>.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 7: Получаем значение -->
+  <section class="slide">
+    <header>
+      <h2>Значение достают по ключу в квадратных скобках</h2>
+    </header>
+    <div class="content">
+      <pre><code>item = {
+    "title": "Наушники",
+    "price": 2500,
+    "in_stock": True
+}
+
+print(item["title"])
+print(item["price"])</code></pre>
+      <div class="card blue">
+        <span class="label">Правило</span>
+        <p>Пишем имя словаря, затем ключ в квадратных скобках.</p>
+        <br>
+        <p class="big"><span class="inline-code">dict[key]</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 8: Ошибка KeyError -->
+  <section class="slide">
+    <header>
+      <h2>Если ключа нет, Python честно ругается</h2>
+    </header>
+    <div class="content">
+      <pre><code>profile = {
+    "name": "Rita",
+    "age": 15
+}
+
+print(profile["city"])</code></pre>
+      <div class="card red">
+        <span class="label red">Ошибка</span>
+        <p class="big">KeyError</p>
+        <br>
+        <p>Это значит: “я не нашел такой ключ в словаре”.</p>
+        <br>
+        <p class="muted">Словарь не угадывает, что мы имели в виду.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 9: get -->
+  <section class="slide">
+    <header>
+      <h2><span class="accent">get</span> помогает спросить аккуратно</h2>
+    </header>
+    <div class="content">
+      <pre><code>profile = {
+    "name": "Rita",
+    "age": 15
+}
+
+city = profile.get("city", "город не указан")
+
+print(city)</code></pre>
+      <div class="card green">
+        <span class="label green">Когда удобно</span>
+        <ul>
+          <li>ключ может отсутствовать;</li>
+          <li>программа не должна падать;</li>
+          <li>нужно значение по умолчанию.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 10: Меняем значения -->
+  <section class="slide">
+    <header>
+      <h2>Словарь можно менять после создания</h2>
+    </header>
+    <div class="content">
+      <pre><code>hero = {
+    "name": "Alex",
+    "hp": 100
+}
+
+hero["hp"] = 80
+hero["coins"] = 25
+
+print(hero)</code></pre>
+      <div class="card blue">
+        <span class="label">Два действия</span>
+        <ul>
+          <li>если ключ уже есть, значение обновится;</li>
+          <li>если ключа нет, появится новая пара.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 11: Практика профиль -->
+  <section class="slide">
+    <header>
+      <h2>Практика: собери анкету пользователя</h2>
+    </header>
+    <div class="content">
+      <div class="card orange">
+        <span class="label orange">Задача</span>
+        <ul>
+          <li>создай словарь <span class="inline-code">user</span>;</li>
+          <li>сохрани имя, возраст и город;</li>
+          <li>выведи фразу “Аня из Казани, 14 лет”;</li>
+          <li>добавь ключ <span class="inline-code">"hobby"</span>.</li>
+        </ul>
+      </div>
+      <div class="card blue">
+        <span class="label">Подсказка</span>
+        <p>Сначала создай словарь с тремя парами, потом отдельно добавь новый ключ через квадратные скобки.</p>
+        <br>
+        <p class="big"><span class="inline-code">user["hobby"] = ...</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 12: Разбор практики профиль -->
+  <section class="slide">
+    <header>
+      <h2>Разбор: анкета пользователя</h2>
+    </header>
+    <div class="content">
+      <pre><code>user = {
+    "name": "Аня",
+    "age": 14,
+    "city": "Казань"
+}
+
+print(user["name"], "из", user["city"])
+
+user["hobby"] = "рисование"</code></pre>
+      <div class="card green">
+        <span class="label green">Что важно</span>
+        <p>Словарь удобно читать: сразу видно, где имя, где возраст, а где город. Новый ключ можно добавить после создания словаря.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 12: Удаляем элементы -->
+  <section class="slide">
+    <header>
+      <h2>Удаление нужно, когда данные устарели</h2>
+    </header>
+    <div class="content">
+      <pre><code>cart = {
+    "phone": 1,
+    "case": 2,
+    "sticker": 5
+}
+
+del cart["sticker"]
+
+removed = cart.pop("case")
+
+print(cart)
+print(removed)</code></pre>
+      <div class="card purple">
+        <span class="label purple">Разница</span>
+        <ul>
+          <li><span class="inline-code">del</span> просто удаляет пару;</li>
+          <li><span class="inline-code">pop</span> удаляет и возвращает значение.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 13: Проверка ключа -->
+  <section class="slide">
+    <header>
+      <h2>Перед обращением можно проверить, есть ли ключ</h2>
+    </header>
+    <div class="content">
+      <pre><code>settings = {
+    "theme": "dark",
+    "volume": 70
+}
+
+if "theme" in settings:
+    print("Тема:", settings["theme"])
+else:
+    print("Тема не выбрана")</code></pre>
+      <div class="card green">
+        <span class="label green">Паттерн</span>
+        <p>Проверка через <span class="inline-code">in</span> защищает от <span class="inline-code">KeyError</span>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 14: Перебор ключей -->
+  <section class="slide">
+    <header>
+      <h2>Цикл по словарю по умолчанию идет по ключам</h2>
+    </header>
+    <div class="content">
+      <pre><code>grades = {
+    "Аня": 5,
+    "Миша": 4,
+    "Лера": 5
+}
+
+for name in grades:
+    print(name)</code></pre>
+      <div class="card blue">
+        <span class="label">Важно</span>
+        <p>Переменная <span class="inline-code">name</span> получает ключи: <span class="inline-code">"Аня"</span>, <span class="inline-code">"Миша"</span>, <span class="inline-code">"Лера"</span>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 15: keys values items -->
+  <section class="slide">
+    <header>
+      <h2>У словаря есть три главных способа перебора</h2>
+    </header>
+    <div class="content single">
+      <div class="task-grid">
+        <div class="task">
+          <h3>keys()</h3>
+          <p>Только ключи: имена, названия, логины.</p>
+        </div>
+        <div class="task">
+          <h3>values()</h3>
+          <p>Только значения: оценки, цены, количество.</p>
+        </div>
+        <div class="task">
+          <h3>items()</h3>
+          <p>Ключ и значение вместе.</p>
+        </div>
+        <div class="task">
+          <h3>dict</h3>
+          <p>Если просто написать цикл по словарю, получим ключи.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 16: items -->
+  <section class="slide">
+    <header>
+      <h2><span class="accent">items()</span> удобен для красивого вывода</h2>
+    </header>
+    <div class="content">
+      <pre><code>prices = {
+    "чай": 80,
+    "пицца": 450,
+    "сок": 120
+}
+
+for product, price in prices.items():
+    print(product, "-", price, "руб.")</code></pre>
+      <div class="card green">
+        <span class="label green">Почему две переменные</span>
+        <p><span class="inline-code">items()</span> на каждом шаге отдает пару: ключ и значение. Поэтому удобно сразу назвать их по смыслу.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 17: Практика меню -->
+  <section class="slide">
+    <header>
+      <h2>Практика: меню кафе</h2>
+    </header>
+    <div class="content">
+      <div class="card orange">
+        <span class="label orange">Задача</span>
+        <ul>
+          <li>создай словарь блюд и цен;</li>
+          <li>выведи меню строками “пицца: 450 руб.”;</li>
+          <li>посчитай сумму всех цен;</li>
+          <li>выведи среднюю цену.</li>
+        </ul>
+      </div>
+      <div class="card blue">
+        <span class="label">Подсказка</span>
+        <p>Для красивого вывода бери блюдо и цену через <span class="inline-code">items()</span>. Для средней цены пригодятся <span class="inline-code">total</span> и <span class="inline-code">len(menu)</span>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 18: Разбор практики меню -->
+  <section class="slide">
+    <header>
+      <h2>Разбор: меню кафе</h2>
+    </header>
+    <div class="content">
+      <pre><code>menu = {
+    "пицца": 450,
+    "суп": 220,
+    "чай": 80
+}
+
+total = 0
+
+for dish, price in menu.items():
+    print(dish, ":", price, "руб.")
+    total += price
+
+print("Средняя цена:", total / len(menu))</code></pre>
+      <div class="card green">
+        <span class="label green">Что важно</span>
+        <p><span class="inline-code">items()</span> дает пару “блюдо и цена”, а переменная <span class="inline-code">total</span> накапливает сумму.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 18: len и empty -->
+  <section class="slide">
+    <header>
+      <h2>Пустой словарь часто наполняется по ходу программы</h2>
+    </header>
+    <div class="content">
+      <pre><code>scores = {}
+
+scores["Аня"] = 10
+scores["Миша"] = 8
+scores["Лера"] = 12
+
+print(len(scores))
+print(scores)</code></pre>
+      <div class="card blue">
+        <span class="label">Когда полезно</span>
+        <ul>
+          <li>собираем результаты игры;</li>
+          <li>считаем частоты;</li>
+          <li>запоминаем ответы пользователя.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 19: Счетчик частот -->
+  <section class="slide">
+    <header>
+      <h2>Словарь отлично считает, сколько раз что-то встретилось</h2>
+    </header>
+    <div class="content">
+      <pre><code>text = "кот пес кот хомяк пес кот"
+words = text.split()
+
+counter = {}
+
+for word in words:
+    if word in counter:
+        counter[word] += 1
+    else:
+        counter[word] = 1
+
+print(counter)</code></pre>
+      <div class="card green">
+        <span class="label green">Идея</span>
+        <p>Ключом становится слово, а значением становится количество повторов.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 20: Практика частоты -->
+  <section class="slide">
+    <header>
+      <h2>Практика: счетчик букв</h2>
+    </header>
+    <div class="content">
+      <div class="card orange">
+        <span class="label orange">Задача</span>
+        <p>Пользователь вводит слово. Программа должна вывести, сколько раз встретилась каждая буква.</p>
+        <br>
+        <p class="muted">Например: <span class="inline-code">банан</span> превращается в счетчик букв.</p>
+      </div>
+      <div class="card blue">
+        <span class="label">Подсказка</span>
+        <p>Ключом будет буква, значением будет количество. Если буква уже есть в словаре, увеличь счетчик на 1.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 22: Разбор практики частоты -->
+  <section class="slide">
+    <header>
+      <h2>Разбор: счетчик букв</h2>
+    </header>
+    <div class="content">
+      <pre><code>word = input("Введите слово: ")
+letters = {}
+
+for letter in word:
+    if letter in letters:
+        letters[letter] += 1
+    else:
+        letters[letter] = 1
+
+for letter, count in letters.items():
+    print(letter, "-", count)</code></pre>
+      <div class="card green">
+        <span class="label green">Что важно</span>
+        <p>Этот же прием работает для слов, оценок, лайков и любых повторяющихся данных.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 21: update -->
+  <section class="slide">
+    <header>
+      <h2><span class="accent">update</span> добавляет сразу несколько пар</h2>
+    </header>
+    <div class="content">
+      <pre><code>player = {
+    "name": "Nova",
+    "level": 3
+}
+
+player.update({
+    "hp": 100,
+    "coins": 45,
+    "guild": "Python Team"
+})
+
+print(player)</code></pre>
+      <div class="card purple">
+        <span class="label purple">Когда удобно</span>
+        <p>Когда нужно быстро объединить данные: профиль + настройки, товар + скидка, герой + новые характеристики.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 22: Словарь и функция -->
+  <section class="slide">
+    <header>
+      <h2>Функции хорошо дружат со словарями</h2>
+    </header>
+    <div class="content">
+      <pre><code>def show_player(player):
+    print("Игрок:", player["name"])
+    print("Уровень:", player["level"])
+    print("HP:", player["hp"])
+
+hero = {
+    "name": "Nova",
+    "level": 4,
+    "hp": 90
+}
+
+show_player(hero)</code></pre>
+      <div class="card green">
+        <span class="label green">Связь с прошлой темой</span>
+        <p>Словарь можно передать в функцию как один аргумент, вместо трех-четырех отдельных переменных.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 23: Практика функция -->
+  <section class="slide">
+    <header>
+      <h2>Практика: функция печатает карточку товара</h2>
+    </header>
+    <div class="content">
+      <div class="card orange">
+        <span class="label orange">Задача</span>
+        <ul>
+          <li>создай словарь товара;</li>
+          <li>напиши функцию <span class="inline-code">show_product(product)</span>;</li>
+          <li>выведи название, цену и наличие;</li>
+          <li>если товара нет, напечатай “нет в наличии”.</li>
+        </ul>
+      </div>
+      <div class="card blue">
+        <span class="label">Подсказка</span>
+        <p>Передай словарь в функцию одним аргументом. Внутри функции доставай поля товара по ключам.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 26: Разбор практики функция -->
+  <section class="slide">
+    <header>
+      <h2>Разбор: карточка товара</h2>
+    </header>
+    <div class="content">
+      <pre><code>def show_product(product):
+    print("Товар:", product["title"])
+    print("Цена:", product["price"])
+
+    if product["in_stock"]:
+        print("Есть в наличии")
+    else:
+        print("Нет в наличии")
+
+phone = {
+    "title": "Смартфон",
+    "price": 29900,
+    "in_stock": True
+}
+
+show_product(phone)</code></pre>
+      <div class="card green">
+        <span class="label green">Что важно</span>
+        <p>Функция не зависит от конкретного товара. Ей можно передать другой словарь с такими же ключами.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 24: Список словарей -->
+  <section class="slide">
+    <header>
+      <h2>Когда объектов много, используем список словарей</h2>
+    </header>
+    <div class="content">
+      <pre><code>students = [
+    {"name": "Аня", "grade": 5},
+    {"name": "Миша", "grade": 4},
+    {"name": "Лера", "grade": 5}
+]
+
+for student in students:
+    print(student["name"], student["grade"])</code></pre>
+      <div class="card blue">
+        <span class="label">Как думать</span>
+        <p>Список хранит много объектов. Каждый объект внутри описан словарем.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 25: Практика рейтинг -->
+  <section class="slide">
+    <header>
+      <h2>Практика: рейтинг игроков</h2>
+    </header>
+    <div class="content">
+      <div class="card orange">
+        <span class="label orange">Задача</span>
+        <p>Есть список игроков. Выведи только тех, у кого больше 100 очков.</p>
+      </div>
+      <div class="card blue">
+        <span class="label">Стартовые данные</span>
+        <pre><code>players = [
+    {"name": "Fox", "score": 80},
+    {"name": "Neo", "score": 140},
+    {"name": "Kit", "score": 110}
+]</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 29: Разбор практики рейтинг -->
+  <section class="slide">
+    <header>
+      <h2>Разбор: рейтинг игроков</h2>
+    </header>
+    <div class="content">
+      <pre><code>players = [
+    {"name": "Fox", "score": 80},
+    {"name": "Neo", "score": 140},
+    {"name": "Kit", "score": 110}
+]
+
+for player in players:
+    if player["score"] > 100:
+        print(player["name"], "прошел дальше")</code></pre>
+      <div class="card green">
+        <span class="label green">Что важно</span>
+        <p>Каждый <span class="inline-code">player</span> внутри цикла — это отдельный словарь. Поэтому очки читаются как <span class="inline-code">player["score"]</span>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 26: Вложенные словари -->
+  <section class="slide">
+    <header>
+      <h2>Вложенный словарь хранит данные внутри данных</h2>
+    </header>
+    <div class="content">
+      <pre><code>game = {
+    "player": {
+        "name": "Nova",
+        "hp": 90
+    },
+    "enemy": {
+        "name": "Bot",
+        "hp": 60
+    }
+}
+
+print(game["player"]["name"])</code></pre>
+      <div class="card purple">
+        <span class="label purple">Не спешим</span>
+        <p>Читаем слева направо: зайди в <span class="inline-code">game</span>, потом в <span class="inline-code">player</span>, потом возьми <span class="inline-code">name</span>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 27: Частые ошибки -->
+  <section class="slide">
+    <header>
+      <h2>Большинство ошибок в словарях связано с ключами</h2>
+    </header>
+    <div class="content single">
+      <div class="task-grid">
+        <div class="task">
+          <h3>KeyError</h3>
+          <p>Обратились к ключу, которого нет.</p>
+        </div>
+        <div class="task">
+          <h3>Опечатка</h3>
+          <p><span class="inline-code">"name"</span> и <span class="inline-code">"Name"</span> для Python разные ключи.</p>
+        </div>
+        <div class="task">
+          <h3>Скобки</h3>
+          <p>Для словаря нужны <span class="inline-code">{}</span>, для обращения нужны <span class="inline-code">[]</span>.</p>
+        </div>
+        <div class="task">
+          <h3>Повтор ключа</h3>
+          <p>Последнее значение перезапишет предыдущее.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 28: Викторина -->
+  <section class="slide">
+    <header>
+      <h2>Викторина: что вернет <span class="accent">get</span>?</h2>
+    </header>
+    <div class="content">
+      <pre><code>user = {
+    "name": "Tim",
+    "age": 13
+}
+
+print(user.get("city", "неизвестно"))</code></pre>
+      <div class="card purple">
+        <span class="label purple">Выберите ответ</span>
+        <div class="quiz" data-answer="2">
+          <button type="button">KeyError</button>
+          <button type="button">city</button>
+          <button type="button">неизвестно</button>
+        </div>
+        <div class="answer">Правильно: ключа <span class="inline-code">"city"</span> нет, поэтому вернется значение по умолчанию.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 29: Финальный проект -->
+  <section class="slide">
+    <header>
+      <h2>Финальный проект: мини-магазин</h2>
+    </header>
+    <div class="content">
+      <div class="card orange">
+        <span class="label orange">Что сделать</span>
+        <ul>
+          <li>создать меню товаров и цен;</li>
+          <li>попросить пользователя выбрать товар;</li>
+          <li>если товар есть, добавить цену к сумме;</li>
+          <li>команда <span class="inline-code">stop</span> завершает покупку;</li>
+          <li>в конце вывести итоговую сумму.</li>
+        </ul>
+      </div>
+      <div class="card blue">
+        <span class="label">Усложнение</span>
+        <ul>
+          <li>после каждой покупки показывай текущую сумму;</li>
+          <li>сохраняй купленные товары в список;</li>
+          <li>в конце выведи чек.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 35: Разбор финального проекта -->
+  <section class="slide">
+    <header>
+      <h2>Разбор: мини-магазин</h2>
+    </header>
+    <div class="content">
+      <pre><code>products = {
+    "чай": 80,
+    "печенье": 120,
+    "сок": 150
+}
+
+total = 0
+
+while True:
+    choice = input("Что купить? ")
+
+    if choice == "stop":
+        break
+
+    if choice in products:
+        total += products[choice]
+        print("Добавлено")
+    else:
+        print("Такого товара нет")
+
+print("Итого:", total)</code></pre>
+      <div class="card green">
+        <span class="label green">Что важно</span>
+        <p>Словарь хранит цены, <span class="inline-code">while</span> держит покупку открытой, а проверка <span class="inline-code">choice in products</span> защищает от неправильного товара.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 30: Итоги и домашка -->
+  <section class="slide">
+    <header>
+      <h2>Словари нужны, когда данным нужны имена</h2>
+    </header>
+    <div class="content">
+      <div class="card green">
+        <span class="label green">Запомнить</span>
+        <ul>
+          <li>словарь хранит пары <span class="inline-code">ключ: значение</span>;</li>
+          <li>значение читается через <span class="inline-code">dict[key]</span>;</li>
+          <li><span class="inline-code">get</span> помогает избежать падения;</li>
+          <li><span class="inline-code">items()</span> удобно использовать в цикле;</li>
+          <li>список словарей описывает много похожих объектов.</li>
+        </ul>
+      </div>
+      <div class="card blue">
+        <span class="label">Домашка на выбор</span>
+        <ul>
+          <li>телефонная книга;</li>
+          <li>инвентарь героя;</li>
+          <li>журнал оценок;</li>
+          <li>анкета пользователей;</li>
+          <li>меню кафе с подсчетом заказа.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav class="nav">
+  <div class="counter" id="counter">1 / 1</div>
+  <div class="buttons">
+    <button class="nav-btn" id="prev" type="button">Назад</button>
+    <div class="progress"><span id="progress"></span></div>
+    <button class="nav-btn" id="next" type="button">Дальше</button>
+  </div>
+</nav>
+
+<script>
+  const slides = [...document.querySelectorAll(".slide")];
+  const counter = document.querySelector("#counter");
+  const progress = document.querySelector("#progress");
+  const prev = document.querySelector("#prev");
+  const next = document.querySelector("#next");
+  let current = 0;
+
+  function showSlide(index) {
+    current = Math.max(0, Math.min(index, slides.length - 1));
+
+    slides.forEach((slide, slideIndex) => {
+      slide.classList.toggle("active", slideIndex === current);
+    });
+
+    counter.textContent = `${current + 1} / ${slides.length}`;
+    progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+    prev.disabled = current === 0;
+    next.disabled = current === slides.length - 1;
+  }
+
+  function goNext() {
+    showSlide(current + 1);
+  }
+
+  function goPrev() {
+    showSlide(current - 1);
+  }
+
+  next.addEventListener("click", goNext);
+  prev.addEventListener("click", goPrev);
+
+  document.addEventListener("keydown", (event) => {
+    if (["ArrowRight", "PageDown", " "].includes(event.key)) {
+      event.preventDefault();
+      goNext();
+    }
+
+    if (["ArrowLeft", "PageUp"].includes(event.key)) {
+      event.preventDefault();
+      goPrev();
+    }
+  });
+
+  document.querySelectorAll(".quiz").forEach((quiz) => {
+    const answerIndex = Number(quiz.dataset.answer);
+    const buttons = [...quiz.querySelectorAll("button")];
+    const answer = quiz.parentElement.querySelector(".answer");
+
+    buttons.forEach((button, index) => {
+      button.addEventListener("click", () => {
+        buttons.forEach((item, itemIndex) => {
+          item.classList.toggle("correct", itemIndex === answerIndex);
+          item.classList.toggle("wrong", itemIndex === index && itemIndex !== answerIndex);
+        });
+
+        if (answer) {
+          answer.classList.add("show");
+        }
+      });
+    });
+  });
+
+  showSlide(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,1048 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Функции в Python</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --slide: #ffffff;
+      --text: #172033;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --green: #16a34a;
+      --orange: #f59e0b;
+      --red: #dc2626;
+      --purple: #7c3aed;
+      --border: #dbe3ef;
+      --code-bg: #0f172a;
+      --code-text: #e5edff;
+      --shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      color: var(--text);
+      background: var(--bg);
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: none;
+      padding: 54px 72px 92px;
+      background:
+        radial-gradient(circle at 88% 12%, rgba(37, 99, 235, 0.12), transparent 28%),
+        radial-gradient(circle at 9% 85%, rgba(124, 58, 237, 0.1), transparent 24%),
+        var(--slide);
+    }
+
+    .slide.active {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 30px;
+    }
+
+    h1, h2 { margin: 0; line-height: 1.05; letter-spacing: -0.04em; }
+    h1 { max-width: 1050px; font-size: clamp(60px, 8vw, 105px); }
+    h2 { max-width: 1050px; font-size: clamp(42px, 5vw, 72px); }
+
+    .accent { color: var(--primary); }
+
+    .subtitle {
+      max-width: 900px;
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 28px;
+      line-height: 1.35;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      min-height: 0;
+      align-items: start;
+    }
+
+    .content.single { grid-template-columns: 1fr; }
+    .content.three { grid-template-columns: repeat(3, 1fr); }
+
+    .card {
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: white;
+      box-shadow: var(--shadow);
+    }
+
+    .card.blue { background: #eff6ff; border-color: #bfdbfe; }
+    .card.green { background: #f0fdf4; border-color: #bbf7d0; }
+    .card.orange { background: #fffbeb; border-color: #fde68a; }
+    .card.purple { background: #f5f3ff; border-color: #ddd6fe; }
+
+    .label {
+      display: inline-block;
+      margin-bottom: 16px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: white;
+      background: var(--primary);
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .label.green { background: var(--green); }
+    .label.orange { background: var(--orange); }
+    .label.purple { background: var(--purple); }
+
+    p, li { font-size: 25px; line-height: 1.42; }
+    p { margin: 0; }
+    ul, ol { margin: 0; padding-left: 1.2em; }
+    li + li { margin-top: 12px; }
+
+    .big { font-size: 34px; font-weight: 800; line-height: 1.25; }
+    .muted { color: var(--muted); }
+
+    code, .inline-code { font-family: Consolas, "JetBrains Mono", monospace; }
+
+    .inline-code {
+      padding: 3px 8px;
+      border-radius: 8px;
+      color: var(--primary-dark);
+      background: #dbeafe;
+      font-weight: 700;
+    }
+
+    pre {
+      margin: 0;
+      max-height: 520px;
+      overflow: auto;
+      padding: 24px;
+      border-radius: 22px;
+      background: var(--code-bg);
+      box-shadow: var(--shadow);
+      color: var(--code-text);
+      font-size: 22px;
+      line-height: 1.35;
+    }
+
+    .task-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .task {
+      min-height: 150px;
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: white;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    .task h3 { margin: 0 0 10px; color: var(--primary); font-size: 27px; }
+    .task p { color: var(--text); font-size: 22px; }
+
+    .quiz { display: grid; gap: 14px; margin-top: 16px; }
+
+    .quiz button {
+      padding: 17px 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: white;
+      color: var(--text);
+      font-size: 22px;
+      text-align: left;
+      cursor: pointer;
+      transition: 150ms ease;
+    }
+
+    .quiz button:hover { border-color: var(--primary); background: #eff6ff; }
+    .quiz button.correct { border-color: #86efac; background: #dcfce7; color: #14532d; }
+    .quiz button.wrong { border-color: #fecaca; background: #fee2e2; color: #7f1d1d; }
+
+    .answer {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 14px;
+      background: #f0fdf4;
+      color: #14532d;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .answer.show { display: block; }
+
+    .nav {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      padding: 0 72px;
+      border-top: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+    }
+
+    .counter { color: var(--muted); font-size: 17px; font-weight: 700; }
+    .buttons { display: flex; gap: 10px; align-items: center; }
+
+    .progress {
+      width: 260px; height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e2e8f0;
+    }
+
+    .progress span {
+      display: block;
+      width: 0; height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--purple));
+      transition: width 180ms ease;
+    }
+
+    button.nav-btn {
+      min-width: 98px;
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 12px;
+      color: white;
+      background: var(--primary);
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.nav-btn:hover { background: var(--primary-dark); }
+    button.nav-btn:disabled { opacity: 0.45; cursor: default; }
+
+    @media (max-width: 920px) {
+      body { overflow: auto; }
+      .deck, .slide { height: auto; min-height: 100vh; }
+      .slide { position: static; padding: 32px 20px 96px; }
+      .slide:not(.active) { display: none; }
+      .slide.active { display: block; }
+      .content, .content.three, .task-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 52px; }
+      h2 { font-size: 40px; }
+      p, li, pre, .quiz button { font-size: 19px; }
+      .nav { padding: 0 16px; }
+      .progress { display: none; }
+    }
+  </style>
+</head>
+<body>
+<main class="deck">
+
+  <!-- Слайд 1: Титул -->
+  <section class="slide active">
+    <header>
+      <h1>Функции в <span class="accent">Python</span></h1>
+      <p class="subtitle">Учимся писать код, который не повторяется: параметры, <span class="inline-code">return</span>, значения по умолчанию и возврат нескольких значений.</p>
+    </header>
+    <div class="content three">
+      <div class="card blue">
+        <span class="label">Цель</span>
+        <p>Научиться выносить повторяющийся код в функции и вызывать их с разными данными.</p>
+      </div>
+      <div class="card green">
+        <span class="label green">Формат</span>
+        <p>Короткая теория, сразу практика, паттерны, мини-проект и финальный баттл.</p>
+      </div>
+      <div class="card orange">
+        <span class="label orange">Итог</span>
+        <p>Умеем писать функции с параметрами, возвращать результат и использовать значения по умолчанию.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 2: Зачем нужны функции -->
+  <section class="slide">
+    <header>
+      <h2>Зачем нужны <span class="accent">функции</span></h2>
+    </header>
+    <div class="content">
+      <div class="card orange">
+        <span class="label orange">Проблема</span>
+        <pre><code>print("Привет, Аня!")
+print("Как дела, Аня?")
+
+print("Привет, Миша!")
+print("Как дела, Миша?")
+
+print("Привет, Лера!")
+print("Как дела, Лера?")</code></pre>
+      </div>
+      <div class="card green">
+        <span class="label green">Решение</span>
+        <pre><code>def greet(name):
+    print("Привет,", name)
+    print("Как дела,", name)
+
+greet("Аня")
+greet("Миша")
+greet("Лера")</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 3: Синтаксис def -->
+  <section class="slide">
+    <header>
+      <h2>Синтаксис <span class="accent">def</span></h2>
+    </header>
+    <div class="content">
+      <pre><code>def имя_функции(параметры):
+    тело функции</code></pre>
+      <div class="card blue">
+        <span class="label">Как читать</span>
+        <ul>
+          <li><span class="inline-code">def</span> — объявляем функцию;</li>
+          <li>имя пишем маленькими буквами через <span class="inline-code">_</span>;</li>
+          <li>в скобках — параметры (или пусто);</li>
+          <li>двоеточие и отступ — как в <span class="inline-code">if</span> и <span class="inline-code">for</span>.</li>
+        </ul>
+        <br>
+        <p class="muted">Функция не выполняется при объявлении. Она запускается только при вызове.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 4: Механика вызова -->
+  <section class="slide">
+    <header>
+      <h2>Как работает <span class="accent">вызов</span></h2>
+    </header>
+    <div class="content">
+      <div class="card blue">
+        <span class="label">Механика</span>
+        <ol>
+          <li>Python доходит до строки с вызовом.</li>
+          <li>Переходит внутрь функции.</li>
+          <li>Выполняет тело функции.</li>
+          <li>Возвращается к следующей строке после вызова.</li>
+        </ol>
+      </div>
+      <pre><code>def say_hello():
+    print("Привет!")
+    print("Я функция")
+
+print("До вызова")
+say_hello()
+print("После вызова")</code></pre>
+    </div>
+  </section>
+
+  <!-- Слайд 5: Практика 1 -->
+  <section class="slide">
+    <header>
+      <h2>Практика 1: первые функции</h2>
+    </header>
+    <div class="content single">
+      <div class="task-grid">
+        <div class="task"><h3>Задача 1</h3><p>Написать функцию <span class="inline-code">say_hi()</span>, которая выводит приветствие.</p></div>
+        <div class="task"><h3>Задача 2</h3><p>Написать функцию <span class="inline-code">print_line()</span>, которая выводит строку из 20 символов <span class="inline-code">=</span>.</p></div>
+        <div class="task"><h3>Задача 3</h3><p>Написать функцию <span class="inline-code">show_menu()</span>, которая выводит меню из 3 пунктов.</p></div>
+        <div class="task"><h3>Задача 4</h3><p>Вызвать каждую функцию несколько раз и убедиться, что код работает без копипасты.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 6: Разбор практики 1 -->
+  <section class="slide">
+    <header>
+      <h2>Разбор практики 1</h2>
+    </header>
+    <div class="content">
+      <pre><code>def say_hi():
+    print("Привет!")
+
+def print_line():
+    print("=" * 20)
+
+def show_menu():
+    print("1 - Начать игру")
+    print("2 - Настройки")
+    print("3 - Выйти")
+
+say_hi()
+print_line()
+show_menu()
+print_line()
+say_hi()</code></pre>
+      <div class="card purple">
+        <span class="label purple">Главная мысль</span>
+        <p>Функция написана один раз, но вызывается сколько угодно раз.</p>
+        <br>
+        <p class="muted">Если нужно поменять приветствие — меняем только внутри <span class="inline-code">def</span>, а не в каждом месте кода.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 7: Параметры -->
+  <section class="slide">
+    <header>
+      <h2>Параметры функции</h2>
+    </header>
+    <div class="content">
+      <pre><code>def greet(name):
+    print("Привет,", name)
+
+greet("Аня")
+greet("Миша")
+greet("Лера")</code></pre>
+      <div class="card blue">
+        <span class="label">Как работает</span>
+        <p>Параметр — это переменная внутри функции. При вызове мы передаём значение, и оно попадает в эту переменную.</p>
+        <br>
+        <ul>
+          <li><span class="inline-code">name</span> — параметр (в определении);</li>
+          <li><span class="inline-code">"Аня"</span> — аргумент (при вызове).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 8: Несколько параметров -->
+  <section class="slide">
+    <header>
+      <h2>Несколько <span class="accent">параметров</span></h2>
+    </header>
+    <div class="content">
+      <pre><code>def introduce(name, age):
+    print("Меня зовут", name)
+    print("Мне", age, "лет")
+
+introduce("Аня", 16)
+introduce("Миша", 14)
+
+def show_score(player, score, max_score):
+    print(player, "набрал", score, "из", max_score)</code></pre>
+      <div class="card orange">
+        <span class="label orange">Важно</span>
+        <p>Аргументы передаются по порядку. Первый аргумент — первому параметру, второй — второму.</p>
+        <br>
+        <p class="muted">Если перепутать порядок, получим неожиданный результат.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 9: Практика 2 -->
+  <section class="slide">
+    <header>
+      <h2>Практика 2: функции с параметрами</h2>
+    </header>
+    <div class="content single">
+      <div class="task-grid">
+        <div class="task"><h3>Задача 1</h3><p>Написать функцию <span class="inline-code">greet(name)</span>, которая выводит "Привет, [имя]!"</p></div>
+        <div class="task"><h3>Задача 2</h3><p>Написать функцию <span class="inline-code">show_price(item, price)</span>, которая выводит название товара и цену.</p></div>
+        <div class="task"><h3>Задача 3</h3><p>Написать функцию <span class="inline-code">print_rectangle(width, height)</span>, которая рисует прямоугольник из <span class="inline-code">#</span>.</p></div>
+        <div class="task"><h3>Задача 4</h3><p>Написать функцию <span class="inline-code">show_player(name, score)</span> и вызвать её для 3 игроков.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 10: Разбор практики 2 -->
+  <section class="slide">
+    <header>
+      <h2>Разбор практики 2</h2>
+    </header>
+    <div class="content">
+      <pre><code>def greet(name):
+    print("Привет,", name + "!")
+
+def show_price(item, price):
+    print(item, "-", price, "руб.")
+
+def print_rectangle(width, height):
+    for row in range(height):
+        for col in range(width):
+            print("#", end="")
+        print()
+
+greet("Аня")
+show_price("Клавиатура", 2490)
+print_rectangle(8, 4)</code></pre>
+      <pre><code>def show_player(name, score):
+    print(name, ":", score, "очков")
+
+show_player("Аня", 120)
+show_player("Миша", 95)
+show_player("Лера", 180)</code></pre>
+    </div>
+  </section>
+
+
+  <!-- Слайд 11: return -->
+  <section class="slide">
+    <header>
+      <h2><span class="accent">return</span> — возврат значения</h2>
+    </header>
+    <div class="content">
+      <pre><code>def add(a, b):
+    return a + b
+
+result = add(3, 5)
+print(result)       # 8
+
+print(add(10, 20))  # 30</code></pre>
+      <div class="card green">
+        <span class="label green">Как работает</span>
+        <p><span class="inline-code">return</span> отправляет значение обратно туда, откуда вызвали функцию.</p>
+        <br>
+        <ul>
+          <li>результат можно сохранить в переменную;</li>
+          <li>можно передать сразу в <span class="inline-code">print</span>;</li>
+          <li>можно использовать в выражении.</li>
+        </ul>
+        <br>
+        <p class="muted">После <span class="inline-code">return</span> функция завершается.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 12: print vs return -->
+  <section class="slide">
+    <header>
+      <h2><span class="accent">print</span> против <span class="accent">return</span></h2>
+    </header>
+    <div class="content">
+      <div class="card orange">
+        <span class="label orange">print внутри</span>
+        <pre><code>def add_print(a, b):
+    print(a + b)
+
+x = add_print(3, 5)
+# Выведет: 8
+# x = None !</code></pre>
+        <p>Выводит на экран, но ничего не возвращает. Результат нельзя использовать дальше.</p>
+      </div>
+      <div class="card green">
+        <span class="label green">return</span>
+        <pre><code>def add_return(a, b):
+    return a + b
+
+x = add_return(3, 5)
+# x = 8
+print(x * 2)  # 16</code></pre>
+        <p>Возвращает значение. Его можно сохранить, передать дальше, использовать в вычислениях.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 13: Практика 3 -->
+  <section class="slide">
+    <header>
+      <h2>Практика 3: функции с <span class="accent">return</span></h2>
+    </header>
+    <div class="content single">
+      <div class="task-grid">
+        <div class="task"><h3>Задача 1</h3><p>Написать функцию <span class="inline-code">square(n)</span>, которая возвращает квадрат числа.</p></div>
+        <div class="task"><h3>Задача 2</h3><p>Написать функцию <span class="inline-code">is_even(n)</span>, которая возвращает <span class="inline-code">True</span>, если число чётное.</p></div>
+        <div class="task"><h3>Задача 3</h3><p>Написать функцию <span class="inline-code">get_max(a, b)</span>, которая возвращает большее из двух чисел.</p></div>
+        <div class="task"><h3>Задача 4</h3><p>Написать функцию <span class="inline-code">average(a, b, c)</span>, которая возвращает среднее трёх чисел.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 14: Разбор практики 3 -->
+  <section class="slide">
+    <header>
+      <h2>Разбор практики 3</h2>
+    </header>
+    <div class="content">
+      <pre><code>def square(n):
+    return n * n
+
+def is_even(n):
+    return n % 2 == 0
+
+def get_max(a, b):
+    if a > b:
+        return a
+    return b
+
+print(square(5))      # 25
+print(is_even(4))     # True
+print(get_max(7, 3))  # 7</code></pre>
+      <pre><code>def average(a, b, c):
+    return (a + b + c) / 3
+
+result = average(80, 90, 100)
+print("Среднее:", result)  # 90.0
+
+# Используем в условии
+if average(5, 4, 3) >= 4:
+    print("Хороший результат")</code></pre>
+    </div>
+  </section>
+
+  <!-- Слайд 15: Значения по умолчанию -->
+  <section class="slide">
+    <header>
+      <h2>Значения по <span class="accent">умолчанию</span></h2>
+    </header>
+    <div class="content">
+      <pre><code>def greet(name, greeting="Привет"):
+    print(greeting + ",", name + "!")
+
+greet("Аня")              # Привет, Аня!
+greet("Миша", "Йоу")      # Йоу, Миша!
+greet("Лера", "Здарова")  # Здарова, Лера!</code></pre>
+      <div class="card purple">
+        <span class="label purple">Как работает</span>
+        <p>Если при вызове не передать аргумент — используется значение по умолчанию.</p>
+        <br>
+        <ul>
+          <li>параметры с дефолтом — всегда в конце;</li>
+          <li>дефолт можно переопределить при вызове;</li>
+          <li>удобно, когда один вариант используется чаще всего.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 16: Практика 4 -->
+  <section class="slide">
+    <header>
+      <h2>Практика 4: значения по умолчанию</h2>
+    </header>
+    <div class="content single">
+      <div class="task-grid">
+        <div class="task"><h3>Задача 1</h3><p>Функция <span class="inline-code">print_line(char="*", length=20)</span> выводит линию из символов.</p></div>
+        <div class="task"><h3>Задача 2</h3><p>Функция <span class="inline-code">introduce(name, age, city="Москва")</span> выводит представление.</p></div>
+        <div class="task"><h3>Задача 3</h3><p>Функция <span class="inline-code">power(base, exp=2)</span> возвращает base в степени exp.</p></div>
+        <div class="task"><h3>Задача 4</h3><p>Вызвать каждую функцию дважды: с дефолтным значением и с кастомным.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 17: Разбор практики 4 -->
+  <section class="slide">
+    <header>
+      <h2>Разбор практики 4</h2>
+    </header>
+    <div class="content">
+      <pre><code>def print_line(char="*", length=20):
+    print(char * length)
+
+print_line()           # ********************
+print_line("-", 30)    # ------------------------------
+print_line("=")        # ====================
+
+def introduce(name, age, city="Москва"):
+    print(name, age, "лет,", city)
+
+introduce("Аня", 16)
+introduce("Миша", 14, "Питер")</code></pre>
+      <pre><code>def power(base, exp=2):
+    return base ** exp
+
+print(power(3))      # 9  (3 в квадрате)
+print(power(2, 10))  # 1024
+print(power(5, 3))   # 125</code></pre>
+    </div>
+  </section>
+
+  <!-- Слайд 18: Возврат нескольких значений -->
+  <section class="slide">
+    <header>
+      <h2>Возврат <span class="accent">нескольких</span> значений</h2>
+    </header>
+    <div class="content">
+      <pre><code>def min_max(numbers):
+    minimum = numbers[0]
+    maximum = numbers[0]
+
+    for n in numbers:
+        if n < minimum:
+            minimum = n
+        if n > maximum:
+            maximum = n
+
+    return minimum, maximum
+
+scores = [45, 90, 78, 100, 55]
+low, high = min_max(scores)
+print("Мин:", low, "Макс:", high)</code></pre>
+      <div class="card blue">
+        <span class="label">Как работает</span>
+        <p>Перечисляем значения через запятую после <span class="inline-code">return</span>. При получении тоже через запятую.</p>
+        <br>
+        <p class="muted">Python упаковывает их в кортеж и распаковывает при присваивании.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 19: Паттерны с функциями -->
+  <section class="slide">
+    <header>
+      <h2>Паттерны с <span class="accent">функциями</span></h2>
+    </header>
+    <div class="content single">
+      <div class="task-grid">
+        <div class="task"><h3>Обёртка цикла</h3><p>Выносим цикл в функцию: <span class="inline-code">def find_max(items)</span>, <span class="inline-code">def calc_sum(items)</span>. Вызываем для разных списков.</p></div>
+        <div class="task"><h3>Валидатор</h3><p>Функция проверяет данные и возвращает <span class="inline-code">True/False</span>: <span class="inline-code">def is_valid_nick(nick)</span>.</p></div>
+        <div class="task"><h3>Форматтер</h3><p>Функция возвращает готовую строку: <span class="inline-code">def format_score(name, score)</span> → <span class="inline-code">"Аня: 120 очков"</span>.</p></div>
+        <div class="task"><h3>Мини-калькулятор</h3><p>Набор функций <span class="inline-code">add</span>, <span class="inline-code">subtract</span>, <span class="inline-code">multiply</span> — каждая делает одно действие и возвращает результат.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 20: Мини-проект -->
+  <section class="slide">
+    <header>
+      <h2>Мини-проект: аналитика <span class="accent">стрима</span></h2>
+    </header>
+    <div class="content">
+      <div class="card green">
+        <span class="label green">Задача</span>
+        <ul>
+          <li>дан список донатов;</li>
+          <li>написать функцию <span class="inline-code">calc_total(donates)</span> — сумма;</li>
+          <li>написать функцию <span class="inline-code">find_max(donates)</span> — максимум;</li>
+          <li>написать функцию <span class="inline-code">count_big(donates, limit)</span> — сколько донатов больше лимита;</li>
+          <li>написать функцию <span class="inline-code">stream_report(donates)</span> — вызывает все три и выводит итог.</li>
+        </ul>
+      </div>
+      <pre><code>donates = [100, 750, 300, 1200, 50, 900]
+
+def calc_total(donates):
+    total = 0
+    for d in donates:
+        total += d
+    return total
+
+def find_max(donates):
+    max_d = donates[0]
+    for d in donates:
+        if d > max_d:
+            max_d = d
+    return max_d</code></pre>
+    </div>
+  </section>
+
+  <!-- Слайд 21: Разбор мини-проекта -->
+  <section class="slide">
+    <header>
+      <h2>Разбор: аналитика стрима</h2>
+    </header>
+    <div class="content">
+      <pre><code>def count_big(donates, limit=500):
+    count = 0
+    for d in donates:
+        if d > limit:
+            count += 1
+    return count
+
+def stream_report(donates):
+    print("Сумма донатов:", calc_total(donates))
+    print("Максимальный:", find_max(donates))
+    print("Больше 500:", count_big(donates))
+    if calc_total(donates) > 3000:
+        print("Стрим залетел!")</code></pre>
+      <pre><code>donates = [100, 750, 300, 1200, 50, 900]
+stream_report(donates)
+
+# Сумма донатов: 3300
+# Максимальный: 1200
+# Больше 500: 3
+# Стрим залетел!</code></pre>
+    </div>
+  </section>
+
+  <!-- Слайд 22: Частые ошибки -->
+  <section class="slide">
+    <header>
+      <h2>Частые <span class="accent">ошибки</span></h2>
+    </header>
+    <div class="content single">
+      <div class="card">
+        <ul>
+          <li>забыть вызвать функцию — написали <span class="inline-code">def</span>, но не написали вызов;</li>
+          <li>использовать <span class="inline-code">print</span> вместо <span class="inline-code">return</span> и потом удивляться, почему переменная <span class="inline-code">None</span>;</li>
+          <li>перепутать порядок аргументов при вызове;</li>
+          <li>поставить параметр с дефолтом перед обычным параметром;</li>
+          <li>обращаться к переменной внутри функции снаружи;</li>
+          <li>забыть <span class="inline-code">return</span> — функция вернёт <span class="inline-code">None</span> по умолчанию.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 23: Баттл задач -->
+  <section class="slide">
+    <header>
+      <h2>Баттл задач по <span class="accent">функциям</span></h2>
+    </header>
+    <div class="content single">
+      <div class="task-grid">
+        <div class="task"><h3>Раунд 1</h3><p>Функция <span class="inline-code">celsius_to_fahrenheit(c)</span>: перевести градусы. Формула: <span class="inline-code">f = c * 9/5 + 32</span>.</p></div>
+        <div class="task"><h3>Раунд 2</h3><p>Функция <span class="inline-code">is_palindrome(word)</span>: возвращает <span class="inline-code">True</span>, если слово читается одинаково в обе стороны.</p></div>
+        <div class="task"><h3>Раунд 3</h3><p>Функция <span class="inline-code">count_vowels(text)</span>: считает гласные буквы в тексте.</p></div>
+        <div class="task"><h3>Раунд 4</h3><p>Функция <span class="inline-code">get_stats(numbers)</span>: возвращает сумму, минимум и максимум списка.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 24: Разбор баттла -->
+  <section class="slide">
+    <header>
+      <h2>Разбор баттла</h2>
+    </header>
+    <div class="content">
+      <pre><code>def celsius_to_fahrenheit(c):
+    return c * 9 / 5 + 32
+
+def is_palindrome(word):
+    return word == word[::-1]
+
+def count_vowels(text):
+    vowels = "аеёиоуыэюяАЕЁИОУЫЭЮЯ"
+    count = 0
+    for letter in text:
+        if letter in vowels:
+            count += 1
+    return count</code></pre>
+      <pre><code>def get_stats(numbers):
+    total = 0
+    minimum = numbers[0]
+    maximum = numbers[0]
+    for n in numbers:
+        total += n
+        if n < minimum:
+            minimum = n
+        if n > maximum:
+            maximum = n
+    return total, minimum, maximum
+
+s, lo, hi = get_stats([5, 2, 8, 1, 9])
+print(s, lo, hi)  # 25 1 9</code></pre>
+    </div>
+  </section>
+
+  <!-- Слайд 25: Викторина 1 -->
+  <section class="slide">
+    <header>
+      <h2>Викторина: вопрос 1</h2>
+    </header>
+    <div class="content">
+      <div class="card">
+        <p class="big">Что выведет код?</p>
+        <pre><code>def double(n):
+    return n * 2
+
+x = double(5)
+print(x)</code></pre>
+      </div>
+      <div class="card blue">
+        <div class="quiz" data-answer="1">
+          <button type="button">5</button>
+          <button type="button">10</button>
+          <button type="button">None</button>
+          <button type="button">double(5)</button>
+        </div>
+        <div class="answer">Правильно: функция возвращает 5 * 2 = 10, оно сохраняется в x.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 26: Викторина 2 -->
+  <section class="slide">
+    <header>
+      <h2>Викторина: вопрос 2</h2>
+    </header>
+    <div class="content">
+      <div class="card">
+        <p class="big">Что будет в переменной <span class="inline-code">result</span>?</p>
+        <pre><code>def say(name):
+    print("Привет,", name)
+
+result = say("Миша")</code></pre>
+      </div>
+      <div class="card orange">
+        <div class="quiz" data-answer="2">
+          <button type="button">"Привет, Миша"</button>
+          <button type="button">"Миша"</button>
+          <button type="button">None</button>
+          <button type="button">Ошибка</button>
+        </div>
+        <div class="answer">Правильно: функция ничего не возвращает, поэтому result = None.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 27: Викторина 3 -->
+  <section class="slide">
+    <header>
+      <h2>Викторина: вопрос 3</h2>
+    </header>
+    <div class="content">
+      <div class="card">
+        <p class="big">Какой вызов правильный?</p>
+        <pre><code>def greet(name, greeting="Привет"):
+    print(greeting + ", " + name)</code></pre>
+      </div>
+      <div class="card green">
+        <div class="quiz" data-answer="3">
+          <button type="button">greet()</button>
+          <button type="button">greet(greeting="Йоу")</button>
+          <button type="button">greet("Аня", "Привет", "extra")</button>
+          <button type="button">greet("Аня")</button>
+        </div>
+        <div class="answer">Правильно: name обязателен, greeting имеет дефолт. greet("Аня") работает.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 28: Викторина 4 -->
+  <section class="slide">
+    <header>
+      <h2>Викторина: вопрос 4</h2>
+    </header>
+    <div class="content">
+      <div class="card">
+        <p class="big">Что вернёт функция?</p>
+        <pre><code>def check(n):
+    if n > 0:
+        return "плюс"
+    elif n < 0:
+        return "минус"
+    return "ноль"
+
+print(check(0))</code></pre>
+      </div>
+      <div class="card purple">
+        <div class="quiz" data-answer="2">
+          <button type="button">плюс</button>
+          <button type="button">минус</button>
+          <button type="button">ноль</button>
+          <button type="button">None</button>
+        </div>
+        <div class="answer">Правильно: 0 не больше 0 и не меньше 0, поэтому доходим до return "ноль".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 29: Финальный проект -->
+  <section class="slide">
+    <header>
+      <h2>Финальный проект: рейтинг <span class="accent">турнира</span></h2>
+    </header>
+    <div class="content single">
+      <div class="card blue">
+        <span class="label">Задача</span>
+        <ul>
+          <li>есть список игроков и список очков;</li>
+          <li>написать функцию <span class="inline-code">show_table(players, scores)</span> — вывести таблицу результатов;</li>
+          <li>написать функцию <span class="inline-code">get_winner(players, scores)</span> — вернуть имя победителя;</li>
+          <li>написать функцию <span class="inline-code">get_average(scores)</span> — вернуть средний балл;</li>
+          <li>написать функцию <span class="inline-code">above_average(players, scores)</span> — вернуть список игроков выше среднего;</li>
+          <li>собрать всё в функцию <span class="inline-code">tournament_report(players, scores)</span>.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайд 30: Итоги и домашка -->
+  <section class="slide">
+    <header>
+      <h2>Итоги</h2>
+    </header>
+    <div class="content">
+      <div class="card green">
+        <ul>
+          <li><span class="inline-code">def</span> объявляет функцию, вызов — отдельная строка с именем и скобками.</li>
+          <li>Параметры — переменные внутри функции, аргументы — значения при вызове.</li>
+          <li><span class="inline-code">return</span> возвращает результат; без него функция возвращает <span class="inline-code">None</span>.</li>
+          <li>Значения по умолчанию делают параметры необязательными.</li>
+          <li>Можно вернуть несколько значений через запятую.</li>
+        </ul>
+      </div>
+      <div class="card orange">
+        <span class="label orange">Домашка на выбор</span>
+        <ul>
+          <li><b>Калькулятор:</b> функции add, subtract, multiply, divide с проверкой деления на ноль.</li>
+          <li><b>Анализ текста:</b> функции count_words, count_vowels, is_palindrome.</li>
+          <li><b>Игровой профиль:</b> функции create_profile, add_score, get_rank.</li>
+          <li><b>Конвертер:</b> функции перевода валют, температур, расстояний.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="nav">
+  <div class="counter" id="counter">1 / 1</div>
+  <div class="buttons">
+    <button class="nav-btn" id="prev" type="button">Назад</button>
+    <div class="progress"><span id="progress"></span></div>
+    <button class="nav-btn" id="next" type="button">Дальше</button>
+  </div>
+</nav>
+
+<script>
+  const slides = [...document.querySelectorAll(".slide")];
+  const counter = document.querySelector("#counter");
+  const progress = document.querySelector("#progress");
+  const prev = document.querySelector("#prev");
+  const next = document.querySelector("#next");
+  let current = 0;
+
+  function showSlide(index) {
+    current = Math.max(0, Math.min(index, slides.length - 1));
+    slides.forEach((slide, i) => slide.classList.toggle("active", i === current));
+    counter.textContent = `${current + 1} / ${slides.length}`;
+    progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+    prev.disabled = current === 0;
+    next.disabled = current === slides.length - 1;
+  }
+
+  next.addEventListener("click", () => showSlide(current + 1));
+  prev.addEventListener("click", () => showSlide(current - 1));
+
+  document.addEventListener("keydown", (e) => {
+    if (["ArrowRight", "PageDown", " "].includes(e.key)) { e.preventDefault(); showSlide(current + 1); }
+    if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); showSlide(current - 1); }
+  });
+
+  document.querySelectorAll(".quiz").forEach((quiz) => {
+    const answerIndex = Number(quiz.dataset.answer);
+    const buttons = [...quiz.querySelectorAll("button")];
+    const answer = quiz.parentElement.querySelector(".answer");
+    buttons.forEach((button, index) => {
+      button.addEventListener("click", () => {
+        buttons.forEach((item, i) => {
+          item.classList.toggle("correct", i === answerIndex);
+          item.classList.toggle("wrong", i === index && i !== answerIndex);
+        });
+        if (answer) answer.classList.add("show");
+      });
+    });
+  });
+
+  showSlide(0);
+</script>
+</body>
+</html>
